@@ -42,14 +42,14 @@ function Login({ onLogin }) {
         setLoading(true);
 
         try {
-            const response = await axios.post(`${API_URL} / api / users / login`, {
+            const response = await axios.post(`${API_URL}/api/users/login`, {
                 identifier: 'guest',
                 password: 'password123'
             });
 
             const { token, userId } = response.data;
 
-            const userResponse = await axios.get(`${API_URL} / api / users / userinfo`, {
+            const userResponse = await axios.get(`${API_URL}/api/users/userinfo`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
