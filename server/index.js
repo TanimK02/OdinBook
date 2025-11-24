@@ -8,7 +8,11 @@ import { tweetRouter } from './routes/tweetRoute.js';
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(cors());
+app.use(cors({
+    origin: ['http://localhost:5173', 'https://odin-book-pi.vercel.app'],
+    credentials: true
+}));
+app.set('trust proxy', 1);
 app.use(express.json());
 app.use(passport.initialize());
 
