@@ -36,6 +36,31 @@ function Login({ onLogin }) {
         }
     };
 
+    const handleGuestLogin = async () => {
+        setError('');
+        setLoading(true);
+
+        try {
+            const response = await axios.post('http://localhost:3000/api/users/login', {
+                identifier: 'guest',
+                password: 'password123'
+            });
+
+            const { token, userId } = response.data;
+
+            const userResponse = await axios.get('http://localhost:3000/api/users/userinfo', {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
+            onLogin(token, userResponse.data.user);
+            navigate('/');
+        } catch (error) {
+            setError(error.response?.data?.error || 'Guest login failed');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <div className="auth-container">
             <div className="auth-box">
@@ -65,6 +90,14 @@ function Login({ onLogin }) {
                         {loading ? 'Signing in...' : 'Sign in'}
                     </button>
                 </form>
+
+                <button
+                    className="guest-btn"
+                    onClick={handleGuestLogin}
+                    disabled={loading}
+                >
+                    {loading ? 'Signing in...' : 'Continue as Guest'}
+                </button>
 
                 <div className="auth-link">
                     Don't have an account? <Link to="/register">Sign up</Link>

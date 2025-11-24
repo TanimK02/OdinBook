@@ -79,6 +79,17 @@
     cursor: not-allowed;
 }
 
+.guest-btn {
+    background-color: transparent !important;
+    border: 1px solid #2f3336 !important;
+    color: #1d9bf0 !important;
+    margin-top: 12px;
+}
+
+.guest-btn:hover:not(:disabled) {
+    background-color: rgba(29, 155, 240, 0.1) !important;
+}
+
 .auth-link {
     margin-top: 24px;
     text-align: center;
