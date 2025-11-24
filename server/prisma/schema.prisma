@@ -1,0 +1,116 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String @id @default(cuid())
+  username     String @unique
+  email        String @unique
+  passwordHash String
+
+  // Self relations
+  followers Follow[] @relation("UserFollowing_follower")
+  following Follow[] @relation("UserFollowing_following")
+
+  tweets    Tweet[]
+  profile   Profile?
+  likes     Like[]
+  retweets  Retweet[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Tweet {
+  id       String @id @default(cuid())
+  content  String
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId String
+
+  // Self relation for replies/threads
+  parentTweet   Tweet?  @relation("TweetReplies", fields: [parentTweetId], references: [id], onDelete: Cascade)
+  parentTweetId String?
+  replies       Tweet[] @relation("TweetReplies")
+
+  images    Img[]
+  likes     Like[]
+  retweets  Retweet[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([authorId, createdAt])
+  @@index([parentTweetId])
+}
+
+model Profile {
+  id        String   @id @default(cuid())
+  bio       String?
+  avatarUrl String?
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Img {
+  id        String   @id @default(cuid())
+  url       String
+  tweet     Tweet    @relation(fields: [tweetId], references: [id], onDelete: Cascade)
+  tweetId   String
+  createdAt DateTime @default(now())
+
+  @@index([tweetId])
+}
+
+model Follow {
+  id String @id @default(cuid())
+
+  follower   User   @relation("UserFollowing_follower", fields: [followerId], references: [id], onDelete: Cascade)
+  followerId String
+
+  following   User   @relation("UserFollowing_following", fields: [followingId], references: [id], onDelete: Cascade)
+  followingId String
+
+  createdAt DateTime @default(now())
+
+  @@unique([followerId, followingId])
+  @@index([followerId])
+  @@index([followingId])
+}
+
+model Like {
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  tweet     Tweet    @relation(fields: [tweetId], references: [id], onDelete: Cascade)
+  tweetId   String
+  createdAt DateTime @default(now())
+
+  @@unique([userId, tweetId])
+  @@index([userId])
+  @@index([tweetId])
+}
+
+model Retweet {
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  tweet     Tweet    @relation(fields: [tweetId], references: [id], onDelete: Cascade)
+  tweetId   String
+  createdAt DateTime @default(now())
+
+  @@unique([userId, tweetId])
+  @@index([userId])
+  @@index([tweetId])
+}

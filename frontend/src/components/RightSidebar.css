@@ -1,0 +1,73 @@
+.right-sidebar {
+    width: 350px;
+    padding: 8px 16px;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+}
+
+.search-box {
+    margin-bottom: 16px;
+}
+
+.search-box input {
+    width: 100%;
+    padding: 12px 16px;
+    background-color: #202327;
+    border: none;
+    border-radius: 9999px;
+    color: #e7e9ea;
+    font-size: 15px;
+    outline: none;
+}
+
+.search-box input:focus {
+    background-color: #000;
+    border: 1px solid #1d9bf0;
+}
+
+.trends-widget {
+    background-color: #16181c;
+    border-radius: 16px;
+    padding: 12px 0;
+}
+
+.trends-widget h2 {
+    padding: 12px 16px;
+    font-size: 20px;
+    font-weight: 800;
+}
+
+.trend-item {
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.trend-item:hover {
+    background-color: #1c1f23;
+}
+
+.trend-category {
+    font-size: 13px;
+    color: #71767b;
+    margin-bottom: 2px;
+}
+
+.trend-title {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 2px;
+}
+
+.trend-count {
+    font-size: 13px;
+    color: #71767b;
+}
+
+@media (max-width: 1024px) {
+    .right-sidebar {
+        display: none;
+    }
+}

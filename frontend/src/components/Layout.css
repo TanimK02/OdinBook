@@ -1,0 +1,36 @@
+.layout {
+    display: flex;
+    max-width: 1280px;
+    margin: 0 auto;
+    min-height: 100vh;
+}
+
+.main-content {
+    flex: 1;
+    max-width: 100%;
+    border-left: 1px solid #2f3336;
+    border-right: 1px solid #2f3336;
+    min-height: 100vh;
+    width: 100%;
+}
+
+@media (max-width: 1024px) {
+    .layout {
+        max-width: 920px;
+    }
+}
+
+@media (max-width: 768px) {
+    .layout {
+        display: block;
+    }
+
+    .main-content {
+        max-width: 100%;
+        width: 100%;
+        border-left: none;
+        border-right: none;
+        margin-bottom: 60px;
+        display: block;
+    }
+}

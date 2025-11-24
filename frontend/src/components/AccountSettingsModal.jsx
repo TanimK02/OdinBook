@@ -1,0 +1,233 @@
+import { useState } from 'react';
+import axios from 'axios';
+import { FaTimes } from 'react-icons/fa';
+import './EditProfileModal.css';
+
+function AccountSettingsModal({ user, onClose, onUpdate }) {
+    const [activeTab, setActiveTab] = useState('username');
+    const [newUsername, setNewUsername] = useState('');
+    const [newEmail, setNewEmail] = useState('');
+    const [oldPassword, setOldPassword] = useState('');
+    const [newPassword, setNewPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
+    const [success, setSuccess] = useState('');
+
+    const handleUsernameUpdate = async (e) => {
+        e.preventDefault();
+        setError('');
+        setSuccess('');
+        setLoading(true);
+
+        if (newUsername.length < 3) {
+            setError('Username must be at least 3 characters');
+            setLoading(false);
+            return;
+        }
+
+        try {
+            const token = localStorage.getItem('token');
+            await axios.put('http://localhost:3000/api/users/update-username',
+                { newUsername },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+            setSuccess('Username updated successfully!');
+            setNewUsername('');
+            onUpdate({ ...user, username: newUsername });
+        } catch (error) {
+            setError(error.response?.data?.error || 'Failed to update username');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleEmailUpdate = async (e) => {
+        e.preventDefault();
+        setError('');
+        setSuccess('');
+        setLoading(true);
+
+        try {
+            const token = localStorage.getItem('token');
+            await axios.put('http://localhost:3000/api/users/update-email',
+                { newEmail },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+            setSuccess('Email updated successfully!');
+            setNewEmail('');
+            onUpdate({ ...user, email: newEmail });
+        } catch (error) {
+            setError(error.response?.data?.error || 'Failed to update email');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handlePasswordUpdate = async (e) => {
+        e.preventDefault();
+        setError('');
+        setSuccess('');
+        setLoading(true);
+
+        if (newPassword !== confirmPassword) {
+            setError('Passwords do not match');
+            setLoading(false);
+            return;
+        }
+
+        if (newPassword.length < 6) {
+            setError('Password must be at least 6 characters');
+            setLoading(false);
+            return;
+        }
+
+        try {
+            const token = localStorage.getItem('token');
+            await axios.put('http://localhost:3000/api/users/change-password',
+                { oldPassword, newPassword },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+            setSuccess('Password changed successfully!');
+            setOldPassword('');
+            setNewPassword('');
+            setConfirmPassword('');
+        } catch (error) {
+            setError(error.response?.data?.error || 'Failed to change password');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <div className="modal-overlay" onClick={onClose}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                <div className="modal-header">
+                    <h2>Account Settings</h2>
+                    <button className="close-btn" onClick={onClose}>
+                        <FaTimes size={20} />
+                    </button>
+                </div>
+
+                <div className="settings-tabs">
+                    <button
+                        className={`tab-btn ${activeTab === 'username' ? 'active' : ''}`}
+                        onClick={() => { setActiveTab('username'); setError(''); setSuccess(''); }}
+                    >
+                        Username
+                    </button>
+                    <button
+                        className={`tab-btn ${activeTab === 'email' ? 'active' : ''}`}
+                        onClick={() => { setActiveTab('email'); setError(''); setSuccess(''); }}
+                    >
+                        Email
+                    </button>
+                    <button
+                        className={`tab-btn ${activeTab === 'password' ? 'active' : ''}`}
+                        onClick={() => { setActiveTab('password'); setError(''); setSuccess(''); }}
+                    >
+                        Password
+                    </button>
+                </div>
+
+                {error && <div className="error-message">{error}</div>}
+                {success && <div className="success-message">{success}</div>}
+
+                <div className="settings-content">
+                    {activeTab === 'username' && (
+                        <form onSubmit={handleUsernameUpdate}>
+                            <div className="form-group">
+                                <label>Current Username</label>
+                                <input type="text" value={user?.username || ''} disabled />
+                            </div>
+                            <div className="form-group">
+                                <label>New Username</label>
+                                <input
+                                    type="text"
+                                    value={newUsername}
+                                    onChange={(e) => setNewUsername(e.target.value)}
+                                    placeholder="Enter new username"
+                                    minLength={3}
+                                    required
+                                />
+                            </div>
+                            <div className="modal-actions">
+                                <button type="submit" className="save-btn" disabled={loading}>
+                                    {loading ? 'Updating...' : 'Update Username'}
+                                </button>
+                            </div>
+                        </form>
+                    )}
+
+                    {activeTab === 'email' && (
+                        <form onSubmit={handleEmailUpdate}>
+                            <div className="form-group">
+                                <label>Current Email</label>
+                                <input type="email" value={user?.email || ''} disabled />
+                            </div>
+                            <div className="form-group">
+                                <label>New Email</label>
+                                <input
+                                    type="email"
+                                    value={newEmail}
+                                    onChange={(e) => setNewEmail(e.target.value)}
+                                    placeholder="Enter new email"
+                                    required
+                                />
+                            </div>
+                            <div className="modal-actions">
+                                <button type="submit" className="save-btn" disabled={loading}>
+                                    {loading ? 'Updating...' : 'Update Email'}
+                                </button>
+                            </div>
+                        </form>
+                    )}
+
+                    {activeTab === 'password' && (
+                        <form onSubmit={handlePasswordUpdate}>
+                            <div className="form-group">
+                                <label>Old Password</label>
+                                <input
+                                    type="password"
+                                    value={oldPassword}
+                                    onChange={(e) => setOldPassword(e.target.value)}
+                                    placeholder="Enter old password"
+                                    required
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label>New Password</label>
+                                <input
+                                    type="password"
+                                    value={newPassword}
+                                    onChange={(e) => setNewPassword(e.target.value)}
+                                    placeholder="Enter new password"
+                                    minLength={6}
+                                    required
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label>Confirm New Password</label>
+                                <input
+                                    type="password"
+                                    value={confirmPassword}
+                                    onChange={(e) => setConfirmPassword(e.target.value)}
+                                    placeholder="Confirm new password"
+                                    minLength={6}
+                                    required
+                                />
+                            </div>
+                            <div className="modal-actions">
+                                <button type="submit" className="save-btn" disabled={loading}>
+                                    {loading ? 'Changing...' : 'Change Password'}
+                                </button>
+                            </div>
+                        </form>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+}
+
+export default AccountSettingsModal;

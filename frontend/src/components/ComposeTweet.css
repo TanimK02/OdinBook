@@ -1,0 +1,190 @@
+.compose-tweet {
+    display: flex;
+    gap: 12px;
+    padding: 16px;
+    border-bottom: 1px solid #2f3336;
+}
+
+.compose-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #1d9bf0, #0c7abf);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+.compose-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.compose-form {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.compose-form textarea {
+    width: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #e7e9ea;
+    font-size: 20px;
+    font-family: inherit;
+    resize: none;
+    min-height: 120px;
+}
+
+.compose-form textarea::placeholder {
+    color: #71767b;
+}
+
+.image-previews {
+    display: grid;
+    gap: 2px;
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.image-previews.grid-1 {
+    grid-template-columns: 1fr;
+    max-height: 400px;
+}
+
+.image-previews.grid-2 {
+    grid-template-columns: repeat(2, 1fr);
+    max-height: 300px;
+}
+
+.image-previews.grid-3 {
+    grid-template-columns: repeat(2, 1fr);
+    max-height: 300px;
+}
+
+.image-previews.grid-3 .image-preview:first-child {
+    grid-row: 1 / 3;
+}
+
+.image-previews.grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+    max-height: 300px;
+}
+
+.image-preview {
+    position: relative;
+    background-color: #16181c;
+    overflow: hidden;
+}
+
+.image-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.remove-image {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background-color: rgba(0, 0, 0, 0.75);
+    border: none;
+    color: #fff;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.remove-image:hover {
+    background-color: rgba(0, 0, 0, 0.9);
+}
+
+.compose-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 12px;
+    border-top: 1px solid #2f3336;
+}
+
+.media-btn {
+    background: none;
+    border: none;
+    color: #1d9bf0;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+}
+
+.media-btn:hover:not(:disabled) {
+    background-color: rgba(29, 155, 240, 0.1);
+}
+
+.media-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.compose-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.char-count {
+    font-size: 13px;
+    color: #71767b;
+}
+
+.char-count.warning {
+    color: #ffd400;
+}
+
+.post-btn {
+    background-color: #1d9bf0;
+    border: none;
+    border-radius: 9999px;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 700;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    min-width: 80px;
+}
+
+.post-btn:hover:not(:disabled) {
+    background-color: #1a8cd8;
+}
+
+.post-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+    .compose-tweet {
+        padding: 12px;
+    }
+
+    .compose-form textarea {
+        font-size: 18px;
+        min-height: 100px;
+    }
+}

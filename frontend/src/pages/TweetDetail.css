@@ -1,0 +1,49 @@
+.tweet-detail {
+    min-height: 100vh;
+    padding-bottom: 60px;
+}
+
+.tweet-detail-header {
+    position: sticky;
+    top: 0;
+    background-color: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(12px);
+    padding: 16px;
+    border-bottom: 1px solid #2f3336;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.back-btn {
+    background: none;
+    border: none;
+    color: #e7e9ea;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+}
+
+.back-btn:hover {
+    background-color: #181818;
+}
+
+.tweet-detail-header h1 {
+    font-size: 20px;
+    font-weight: 800;
+}
+
+.reply-section {
+    border-bottom: 1px solid #2f3336;
+}
+
+@media (max-width: 768px) {
+    .tweet-detail {
+        padding-bottom: 80px;
+    }
+}
