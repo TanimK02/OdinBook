@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
+import { API_URL } from '../config';
 import { FaTimes, FaCamera } from 'react-icons/fa';
 import './EditProfileModal.css';
 
@@ -19,7 +20,7 @@ function EditProfileModal({ user, onClose, onUpdate }) {
     const loadProfile = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.get('http://localhost:3000/api/users/profile', {
+            const response = await axios.get(`${API_URL}/api/users/profile`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setBio(response.data.profile.bio || '');
@@ -55,7 +56,7 @@ function EditProfileModal({ user, onClose, onUpdate }) {
                 formData.append('avatar', avatarFile);
             }
 
-            await axios.post('http://localhost:3000/api/users/profile',
+            await axios.post(`${API_URL}/api/users/profile`,
                 formData,
                 {
                     headers: {

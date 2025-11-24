@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import axios from 'axios';
+import { API_URL } from '../config';
 import TweetCard from '../components/TweetCard';
 import ComposeTweet from '../components/ComposeTweet';
 import './Home.css';
@@ -32,7 +33,7 @@ function Home({ user }) {
         setLoading(true);
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.get(`http://localhost:3000/api/tweets/tweets/page/${page}`, {
+            const response = await axios.get(`${API_URL}/api/tweets/tweets/page/${page}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
 

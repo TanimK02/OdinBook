@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { API_URL } from '../config';
 import './Auth.css';
 
 function Register({ onLogin }) {
@@ -17,7 +18,7 @@ function Register({ onLogin }) {
         setLoading(true);
 
         try {
-            const response = await axios.post('http://localhost:3000/api/users/register', {
+            const response = await axios.post(`${API_URL}/api/users/register`, {
                 username,
                 email,
                 password
@@ -25,7 +26,7 @@ function Register({ onLogin }) {
 
             const { token, userId } = response.data;
 
-            const userResponse = await axios.get('http://localhost:3000/api/users/userinfo', {
+            const userResponse = await axios.get(`${API_URL}/api/users/userinfo`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
 

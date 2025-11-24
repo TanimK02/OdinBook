@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import { API_URL } from './config';
 import Layout from './components/Layout';
 import Home from './pages/Home';
 import Profile from './pages/Profile';
@@ -24,7 +25,7 @@ function App() {
 
   const fetchUserInfo = async (token) => {
     try {
-      const response = await fetch('http://localhost:3000/api/users/userinfo', {
+      const response = await fetch(`${API_URL}/api/users/userinfo`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -49,7 +50,7 @@ function App() {
     const token = localStorage.getItem('token');
     if (token) {
       try {
-        const response = await fetch('http://localhost:3000/api/users/userinfo', {
+        const response = await fetch(`${API_URL}/api/users/userinfo`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }

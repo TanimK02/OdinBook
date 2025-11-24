@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { API_URL } from '../config';
 import { FaRegComment, FaRegHeart, FaHeart, FaTrash } from 'react-icons/fa';
 import { formatDistanceToNow } from 'date-fns';
 import './TweetCard.css';
@@ -13,7 +14,7 @@ function TweetCard({ tweet, currentUser, isDetail = false, onDelete, onLike, onU
         e.stopPropagation();
         try {
             const token = localStorage.getItem('token');
-            await axios.post('http://localhost:3000/api/interactions/like',
+            await axios.post(`${API_URL}/api/interactions/like`,
                 { tweetId: tweet.id },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
@@ -36,7 +37,7 @@ function TweetCard({ tweet, currentUser, isDetail = false, onDelete, onLike, onU
 
         try {
             const token = localStorage.getItem('token');
-            await axios.delete(`http://localhost:3000/api/tweets/tweet/${tweet.id}`, {
+            await axios.delete(`${API_URL}/api/tweets/tweet/${tweet.id}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             onDelete?.(tweet.id);

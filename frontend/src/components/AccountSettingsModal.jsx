@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import axios from 'axios';
+import { API_URL } from '../config';
 import { FaTimes } from 'react-icons/fa';
 import './EditProfileModal.css';
 
@@ -28,7 +29,7 @@ function AccountSettingsModal({ user, onClose, onUpdate }) {
 
         try {
             const token = localStorage.getItem('token');
-            await axios.put('http://localhost:3000/api/users/update-username',
+            await axios.put(`${API_URL}/api/users/update-username`,
                 { newUsername },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
@@ -50,7 +51,7 @@ function AccountSettingsModal({ user, onClose, onUpdate }) {
 
         try {
             const token = localStorage.getItem('token');
-            await axios.put('http://localhost:3000/api/users/update-email',
+            await axios.put(`${API_URL}/api/users/update-email`,
                 { newEmail },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
@@ -84,7 +85,7 @@ function AccountSettingsModal({ user, onClose, onUpdate }) {
 
         try {
             const token = localStorage.getItem('token');
-            await axios.put('http://localhost:3000/api/users/change-password',
+            await axios.put(`${API_URL}/api/users/change-password`,
                 { oldPassword, newPassword },
                 { headers: { Authorization: `Bearer ${token}` } }
             );

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { API_URL } from '../config';
 import TweetCard from '../components/TweetCard';
 import ComposeTweet from '../components/ComposeTweet';
 import { IoArrowBack } from 'react-icons/io5';
@@ -51,7 +52,7 @@ function TweetDetail({ user }) {
     const loadTweet = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.get(`http://localhost:3000/api/tweets/tweet/${tweetId}`, {
+            const response = await axios.get(`${API_URL}/api/tweets/tweet/${tweetId}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setTweet(response.data.tweet);
@@ -66,7 +67,7 @@ function TweetDetail({ user }) {
         try {
             const token = localStorage.getItem('token');
             const response = await axios.get(
-                `http://localhost:3000/api/tweets/tweets/replies/${tweetId}/page/${page}`,
+                `${API_URL}/api/tweets/tweets/replies/${tweetId}/page/${page}`,
                 { headers: { Authorization: `Bearer ${token}` } }
             );
 

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
+import { API_URL } from '../config';
 import TweetCard from '../components/TweetCard';
 import './Profile.css';
 
@@ -40,7 +41,7 @@ function Profile({ currentUser }) {
     const loadProfile = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.get(`http://localhost:3000/api/users/userinfo`, {
+            const response = await axios.get(`${API_URL}/api/users/userinfo`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setProfile(response.data.user);
@@ -55,7 +56,7 @@ function Profile({ currentUser }) {
         try {
             const token = localStorage.getItem('token');
             const response = await axios.get(
-                `http://localhost:3000/api/tweets/tweets/user/${userId}/page/${page}`,
+                `${API_URL}/api/tweets/tweets/user/${userId}/page/${page}`,
                 { headers: { Authorization: `Bearer ${token}` } }
             );
 

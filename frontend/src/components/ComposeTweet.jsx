@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import axios from 'axios';
+import { API_URL } from '../config';
 import { FaImage, FaTimes } from 'react-icons/fa';
 import './ComposeTweet.css';
 
@@ -45,7 +46,7 @@ function ComposeTweet({ user, onTweetCreated, parentTweetId = null, placeholder 
             });
 
             const token = localStorage.getItem('token');
-            const response = await axios.post('http://localhost:3000/api/tweets/tweet', formData, {
+            const response = await axios.post(`${API_URL}/api/tweets/tweet`, formData, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'multipart/form-data'
