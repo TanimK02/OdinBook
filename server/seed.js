@@ -1,39 +1,19 @@
 import prisma from './config/prisma.js';
 import bcrypt from 'bcryptjs';
+import { faker } from '@faker-js/faker';
 
-async function main() {
+
+export async function main() {
     console.log('Starting seed...');
 
     // Create users
     const users = [];
     const usernames = [
-        'techguru', 'coffeelover', 'bookworm', 'travelbug', 'fitnessfan',
-        'musiclover', 'foodie', 'gamerlife', 'naturelover', 'artlover',
-        'coderlife', 'moviebuff', 'yogafan', 'photographer', 'writer',
-        'designer', 'entrepreneur', 'teacher', 'student', 'developer'
+        ... new Set(Array.from({ length: 50 }, () => faker.internet.userName()))
     ];
 
     const bios = [
-        'Living life one day at a time ✨',
-        'Coffee enthusiast ☕ | Tech lover 💻',
-        'Exploring the world 🌍',
-        'Building cool stuff',
-        'Just here for the memes',
-        'Professional overthinker',
-        'Making mistakes and learning',
-        'Currently obsessed with coding',
-        'Living my best life',
-        'Trying to be better every day',
-        'Dog lover 🐕 | Nature enthusiast',
-        'Creating, learning, growing',
-        'Just vibing',
-        'Passionate about everything',
-        'Life is good',
-        'Always learning something new',
-        'Dream big, work hard',
-        'Spreading positivity',
-        'Adventure seeker',
-        'Tech geek and proud'
+        ...new Set(Array.from({ length: 50 }, () => faker.lorem.sentence()))
     ];
 
     console.log('Creating users...');
@@ -87,56 +67,7 @@ async function main() {
 
     // Tweet content templates
     const tweetTemplates = [
-        "Just finished working on an amazing project! 🚀",
-        "Can't believe how beautiful the weather is today ☀️",
-        "Coffee + Code = Happiness ☕💻",
-        "Learning something new every day!",
-        "This is going to be a great week!",
-        "Anyone else obsessed with this new tech?",
-        "Hot take: pineapple on pizza is underrated 🍕",
-        "Working on improving my skills one day at a time",
-        "Just discovered this amazing new tool!",
-        "Feeling grateful for all the opportunities",
-        "Monday motivation: Let's crush this week! 💪",
-        "The best part of my day is...",
-        "Just had the best meal ever 🍜",
-        "Reading this incredible book right now 📚",
-        "Nature is absolutely stunning today 🌳",
-        "Building something cool, stay tuned!",
-        "Life update: Things are going well!",
-        "Does anyone else feel this way?",
-        "Pro tip: Always keep learning",
-        "Throwback to an amazing memory",
-        "Working from my favorite coffee shop today",
-        "The grind never stops 💼",
-        "Excited about what's coming next!",
-        "Just completed a major milestone 🎉",
-        "Sharing some wisdom I learned today",
-        "This made me smile today 😊",
-        "Weekend vibes are the best vibes",
-        "Productivity level: Maximum 📈",
-        "Taking a break to appreciate the little things",
-        "New day, new opportunities",
-        "Sometimes you just need to take a moment",
-        "Celebrating small wins today!",
-        "This is what I've been working on lately",
-        "Inspiration strikes at the oddest times",
-        "Just another day in paradise",
-        "Making progress, one step at a time",
-        "Feeling creative today ✨",
-        "Life is too short for bad coffee",
-        "Just hit a personal record!",
-        "Grateful for this community 🙏",
-        "Testing out some new ideas",
-        "The journey is just as important as the destination",
-        "Sharing some thoughts on...",
-        "Currently obsessed with this new hobby",
-        "Making memories that will last forever",
-        "This is the energy we need!",
-        "Sometimes the best ideas come from nowhere",
-        "Taking it one day at a time",
-        "Here's to new beginnings!",
-        "Just had an amazing conversation about...",
+        ... new Set(Array.from({ length: 100 }, () => faker.lorem.sentence()))
     ];
 
     // Create tweets
@@ -238,11 +169,14 @@ async function main() {
     console.log(`- Retweets: ${retweetCount}`);
 }
 
-main()
-    .catch((e) => {
-        console.error('Error during seed:', e);
-        process.exit(1);
-    })
-    .finally(async () => {
-        await prisma.$disconnect();
-    });
+// Run seed if this file is executed directly
+if (import.meta.url === `file://${process.argv[1]}`) {
+    main()
+        .catch((e) => {
+            console.error('Error during seed:', e);
+            process.exit(1);
+        })
+        .finally(async () => {
+            await prisma.$disconnect();
+        });
+}

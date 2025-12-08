@@ -20,6 +20,8 @@ app.use('/api/users', userRouter);
 app.use('/api/tweets', tweetRouter);
 app.use('/api/interactions', likeRetweetRouter);
 
-app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
-});
+export default app;
+
+// app.listen(PORT, () => {
+//     console.log(`Server is running on http://localhost:${PORT}`);
+// });
