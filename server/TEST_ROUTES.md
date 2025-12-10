@@ -28,10 +28,10 @@
   ```json
   {
     "message": "User registered successfully",
-    "userId": "cuid",
-    "token": "jwt_token"
+    "userId": "cuid"
   }
   ```
+- **Session:** User is automatically logged in after registration (session created)
 - **Error Cases:**
   - 400: Validation errors
   - 400: Email or username already exists (P2002)
@@ -54,10 +54,10 @@
   ```json
   {
     "message": "Login successful",
-    "userId": "cuid",
-    "token": "jwt_token"
+    "userId": "cuid"
   }
   ```
+- **Session:** Session cookie is set on successful login
 - **Error Cases:**
   - 400: Validation errors
   - 400: Invalid credentials (user not found or wrong password)
@@ -65,9 +65,25 @@
 
 ---
 
-### 4. GET `/api/users/userinfo`
-- **Auth Required:** Yes (JWT in Authorization header: `Bearer <token>`)
-- **Input:** None (user ID from JWT token)
+### 4. POST `/api/users/logout`
+- **Auth Required:** Yes (Session cookie)
+- **Input:** None
+- **Success Response (200):**
+  ```json
+  {
+    "message": "Logout successful"
+  }
+  ```
+- **Session:** Session is destroyed
+- **Error Cases:**
+  - 401: Unauthorized (no active session)
+  - 500: Logout failed
+
+---
+
+### 5. GET `/api/users/userinfo`
+- **Auth Required:** Yes (Session cookie)
+- **Input:** None (user ID from session)
 - **Success Response (200):**
   ```json
   {
@@ -83,14 +99,14 @@
   }
   ```
 - **Error Cases:**
-  - 401: Unauthorized (no token or invalid token)
+  - 401: Unauthorized (no active session)
   - 404: User not found
   - 500: Internal server error
 
 ---
 
-### 5. POST `/api/users/profile`
-- **Auth Required:** Yes (JWT)
+### 6. POST `/api/users/profile`
+- **Auth Required:** Yes (Session cookie)
 - **Input (FormData):**
   - `bio` (text, optional)
   - `avatar` (file, optional - single image file)
@@ -114,9 +130,9 @@
 
 ---
 
-### 6. GET `/api/users/profile`
-- **Auth Required:** Yes (JWT)
-- **Input:** None (user ID from JWT)
+### 7. GET `/api/users/profile`
+- **Auth Required:** Yes (Session cookie)
+- **Input:** None (user ID from session)
 - **Success Response (200):**
   ```json
   {
@@ -137,8 +153,8 @@
 
 ---
 
-### 7. PUT `/api/users/change-password`
-- **Auth Required:** Yes (JWT)
+### 8. PUT `/api/users/change-password`
+- **Auth Required:** Yes (Session cookie)
 - **Input (JSON):**
   ```json
   {
@@ -164,8 +180,8 @@
 
 ---
 
-### 8. PUT `/api/users/update-email`
-- **Auth Required:** Yes (JWT)
+### 9. PUT `/api/users/update-email`
+- **Auth Required:** Yes (Session cookie)
 - **Input (JSON):**
   ```json
   {
@@ -188,8 +204,8 @@
 
 ---
 
-### 9. PUT `/api/users/update-username`
-- **Auth Required:** Yes (JWT)
+### 10. PUT `/api/users/update-username`
+- **Auth Required:** Yes (Session cookie)
 - **Input (JSON):**
   ```json
   {
@@ -212,9 +228,9 @@
 
 ---
 
-### 10. DELETE `/api/users/delete-account`
-- **Auth Required:** Yes (JWT)
-- **Input:** None (user ID from JWT)
+### 11. DELETE `/api/users/delete-account`
+- **Auth Required:** Yes (Session cookie)
+- **Input:** None (user ID from session)
 - **Success Response (200):**
   ```json
   {
@@ -229,8 +245,8 @@
 
 ## Tweet Routes (`/api/tweets`)
 
-### 11. POST `/api/tweets/tweet`
-- **Auth Required:** Yes (JWT)
+### 12. POST `/api/tweets/tweet`
+- **Auth Required:** Yes (Session cookie)
 - **Input (FormData):**
   - `content` (text, optional if images provided, max 280 characters)
   - `parentTweetId` (text/cuid, optional - for replies)
@@ -266,8 +282,8 @@
 
 ---
 
-### 12. GET `/api/tweets/tweets/page/:page`
-- **Auth Required:** Yes (JWT)
+### 13. GET `/api/tweets/tweets/page/:page`
+- **Auth Required:** Yes (Session cookie)
 - **Input:** 
   - `:page` (URL param, number, defaults to 1)
 - **Query Params:** None
@@ -297,8 +313,8 @@
 
 ---
 
-### 13. GET `/api/tweets/tweet/:id`
-- **Auth Required:** Yes (JWT)
+### 14. GET `/api/tweets/tweet/:id`
+- **Auth Required:** Yes (Session cookie)
 - **Input:**
   - `:id` (URL param, tweet cuid)
 - **Success Response (200):**
@@ -325,8 +341,8 @@
 
 ---
 
-### 14. GET `/api/tweets/tweets/user/:userId/page/:page`
-- **Auth Required:** Yes (JWT)
+### 15. GET `/api/tweets/tweets/user/:userId/page/:page`
+- **Auth Required:** Yes (Session cookie)
 - **Input:**
   - `:userId` (URL param, user cuid)
   - `:page` (URL param, number, defaults to 1)
@@ -343,8 +359,8 @@
 
 ---
 
-### 15. GET `/api/tweets/tweets/replies/:parentTweetId/page/:page`
-- **Auth Required:** Yes (JWT)
+### 16. GET `/api/tweets/tweets/replies/:parentTweetId/page/:page`
+- **Auth Required:** Yes (Session cookie)
 - **Input:**
   - `:parentTweetId` (URL param, tweet cuid)
   - `:page` (URL param, number, defaults to 1)
@@ -361,8 +377,8 @@
 
 ---
 
-### 16. PUT `/api/tweets/tweet/:id`
-- **Auth Required:** Yes (JWT)
+### 17. PUT `/api/tweets/tweet/:id`
+- **Auth Required:** Yes (Session cookie)
 - **Input:**
   - `:id` (URL param, tweet cuid)
   - (FormData):
@@ -388,8 +404,8 @@
 
 ---
 
-### 17. DELETE `/api/tweets/tweet/:id`
-- **Auth Required:** Yes (JWT)
+### 18. DELETE `/api/tweets/tweet/:id`
+- **Auth Required:** Yes (Session cookie)
 - **Input:**
   - `:id` (URL param, tweet cuid)
 - **Validations:**
@@ -410,14 +426,16 @@
 
 ## Interaction Routes (`/api/interactions`)
 
-### 18. POST `/api/interactions/like`
-- **Auth Required:** Yes (JWT)
+### 19. POST `/api/interactions/like`
+- **Auth Required:** Yes (Session cookie)
 - **Input (JSON):**
   ```json
   {
     "tweetId": "cuid"
   }
   ```
+- **Validations:**
+  - `tweetId` required
 - **Behavior:** Toggle - if already liked, unlike; if not liked, like
 - **Success Response (200 for unlike / 201 for like):**
   ```json
@@ -426,19 +444,22 @@
   }
   ```
 - **Error Cases:**
+  - 400: Validation errors
   - 401: Unauthorized
   - 500: Internal server error
 
 ---
 
-### 19. POST `/api/interactions/retweet`
-- **Auth Required:** Yes (JWT)
+### 20. POST `/api/interactions/retweet`
+- **Auth Required:** Yes (Session cookie)
 - **Input (JSON):**
   ```json
   {
     "tweetId": "cuid"
   }
   ```
+- **Validations:**
+  - `tweetId` required
 - **Behavior:** Toggle - if already retweeted, unretweet; if not retweeted, retweet
 - **Success Response (200 for unretweet / 201 for retweet):**
   ```json
@@ -447,6 +468,7 @@
   }
   ```
 - **Error Cases:**
+  - 400: Validation errors
   - 401: Unauthorized
   - 500: Internal server error
 
@@ -455,22 +477,36 @@
 ## Testing Tips
 
 1. **Authentication Flow:**
-   - First register a user (route 2)
-   - Get the token from response
-   - Use token in Authorization header: `Bearer <token>` for protected routes
+   - First register a user (route 2) - session is automatically created
+   - Or login (route 3) - session cookie is set
+   - Session cookie is automatically included in subsequent requests
+   - Use logout (route 4) to destroy session
 
-2. **Testing Order Suggestion:**
+2. **Session Cookie Testing:**
+   - In Postman/Insomnia: Enable "Send cookies automatically"
+   - In supertest: Use `.set('Cookie', cookie)` or use an agent for persistent cookies
+   - Example with supertest agent:
+     ```javascript
+     const agent = request.agent(app);
+     await agent.post('/api/users/login').send({...});
+     // Subsequent requests with agent automatically include session cookie
+     await agent.get('/api/users/userinfo');
+     ```
+
+3. **Testing Order Suggestion:**
    - Start with user registration/login (routes 2-3)
-   - Test user info retrieval (route 4)
-   - Test profile creation/update (routes 5-6)
-   - Test tweet creation (route 11)
-   - Test tweet retrieval (routes 12-15)
-   - Test interactions (routes 18-19)
-   - Test updates (routes 7-9, 16)
-   - Test deletions (routes 10, 17)
+   - Test user info retrieval (route 5)
+   - Test profile creation/update (routes 6-7)
+   - Test tweet creation (route 12)
+   - Test tweet retrieval (routes 13-16)
+   - Test interactions (routes 19-20)
+   - Test updates (routes 8-10, 17)
+   - Test deletions (routes 11, 18)
+   - Test logout (route 4)
 
-3. **Edge Cases to Test:**
-   - Invalid tokens
+4. **Edge Cases to Test:**
+   - No session cookie
+   - Invalid/expired session
    - Missing required fields
    - Invalid data formats
    - Duplicate usernames/emails
@@ -479,14 +515,20 @@
    - File upload limits
    - Character limits
 
-4. **FormData Testing:**
-   - Routes 5, 11, and 16 use FormData (not JSON)
+5. **FormData Testing:**
+   - Routes 6, 12, and 17 use FormData (not JSON)
    - In supertest: use `.attach()` for files and `.field()` for text fields
    - Example:
      ```javascript
-     await request(app)
+     await agent
        .post('/api/tweets/tweet')
-       .set('Authorization', `Bearer ${token}`)
        .field('content', 'Tweet text')
        .attach('tweetPics', buffer, 'image.jpg')
      ```
+
+6. **Session Cookie Configuration:**
+   - Cookie name: `connect.sid` (default express-session)
+   - httpOnly: true
+   - secure: false in development, true in production
+   - maxAge: 24 hours (86400000 ms)
+   - sameSite: 'lax'

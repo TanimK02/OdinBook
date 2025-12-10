@@ -1,8 +1,8 @@
 import { Router } from "express";
-import { requireJwt } from "../middleware/jwtValidator.js";
+import { requireAuth } from "../middleware/authentication.js";
 import { uploadMiddleware } from "../middleware/uploadController.js";
 import { loginValidation, passwordChangeValidation, registerValidation, updateEmailValidation, updateUsernameValidation } from "../middleware/validators.js";
-import { changePassword, deleteAccountController, getProfileController, login, postProfile, register, updateEmailController, updateUsernameController, userInfo } from "../controllers/userController.js";
+import { changePassword, deleteAccountController, getProfileController, login, postProfile, register, updateEmailController, updateUsernameController, userInfo, logout } from "../controllers/userController.js";
 const userRouter = Router();
 
 userRouter.get("/", (req, res) => {
@@ -13,19 +13,21 @@ userRouter.post("/register", registerValidation, register);
 
 userRouter.post("/login", loginValidation, login);
 
-userRouter.get("/userinfo", requireJwt, userInfo);
+userRouter.post("/logout", requireAuth, logout);
 
-userRouter.post("/profile", requireJwt, uploadMiddleware, postProfile);
+userRouter.get("/userinfo", requireAuth, userInfo);
 
-userRouter.get("/profile", requireJwt, getProfileController);
+userRouter.post("/profile", requireAuth, uploadMiddleware, postProfile);
 
-userRouter.put("/change-password", requireJwt, passwordChangeValidation, changePassword);
+userRouter.get("/profile", requireAuth, getProfileController);
 
-userRouter.put("/update-email", requireJwt, updateEmailValidation, updateEmailController);
+userRouter.put("/change-password", requireAuth, passwordChangeValidation, changePassword);
 
-userRouter.put("/update-username", requireJwt, updateUsernameValidation, updateUsernameController);
+userRouter.put("/update-email", requireAuth, updateEmailValidation, updateEmailController);
 
-userRouter.delete("/delete-account", requireJwt, deleteAccountController);
+userRouter.put("/update-username", requireAuth, updateUsernameValidation, updateUsernameController);
+
+userRouter.delete("/delete-account", requireAuth, deleteAccountController);
 
 export { userRouter };
 

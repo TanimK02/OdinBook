@@ -1,22 +1,22 @@
 import { uploadMiddleware } from "../middleware/uploadController.js";
 import { Router } from "express";
-import { requireJwt } from "../middleware/jwtValidator.js";
+import { requireAuth } from "../middleware/authentication.js";
 import { tweetValidation, updateTweetValidation } from "../middleware/validators.js";
 import { deleteTweetController, getReplies, getTweet, getTweets, getUserTweets, postTweet, updateTweetController } from "../controllers/tweetController.js";
 const tweetRouter = Router();
 
-tweetRouter.post("/tweet", requireJwt, uploadMiddleware, tweetValidation, postTweet);
+tweetRouter.post("/tweet", requireAuth, uploadMiddleware, tweetValidation, postTweet);
 
-tweetRouter.get("/tweets/page/:page", requireJwt, getTweets);
+tweetRouter.get("/tweets/page/:page", requireAuth, getTweets);
 
-tweetRouter.get("/tweet/:id", requireJwt, getTweet);
+tweetRouter.get("/tweet/:id", requireAuth, getTweet);
 
-tweetRouter.get("/tweets/user/:userId/page/:page", requireJwt, getUserTweets);
+tweetRouter.get("/tweets/user/:userId/page/:page", requireAuth, getUserTweets);
 
-tweetRouter.delete("/tweet/:id", requireJwt, deleteTweetController);
+tweetRouter.delete("/tweet/:id", requireAuth, deleteTweetController);
 
-tweetRouter.get("/tweets/replies/:parentTweetId/page/:page", requireJwt, getReplies);
+tweetRouter.get("/tweets/replies/:parentTweetId/page/:page", requireAuth, getReplies);
 
-tweetRouter.put("/tweet/:id", requireJwt, updateTweetValidation, uploadMiddleware, updateTweetController);
+tweetRouter.put("/tweet/:id", requireAuth, uploadMiddleware, updateTweetValidation, updateTweetController);
 
 export { tweetRouter };

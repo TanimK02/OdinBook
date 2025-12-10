@@ -1,11 +1,11 @@
 import { Router } from "express";
-import { requireJwt } from "../middleware/jwtValidator.js";
+import { requireAuth } from "../middleware/authentication.js";
 import { likeRetweetValidation } from "../middleware/validators.js";
 import { likeController, retweetController } from "../controllers/likeRetweetController.js";
 const likeRetweetRouter = Router();
 
-likeRetweetRouter.post("/like", requireJwt, likeRetweetValidation, likeController);
+likeRetweetRouter.post("/like", requireAuth, likeRetweetValidation, likeController);
 
-likeRetweetRouter.post("/retweet", requireJwt, likeRetweetValidation, retweetController);
+likeRetweetRouter.post("/retweet", requireAuth, likeRetweetValidation, retweetController);
 
 export { likeRetweetRouter };

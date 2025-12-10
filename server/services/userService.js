@@ -1,5 +1,4 @@
 import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
 import prisma from '../config/prisma.js'
 import { supabase } from "../config/supabase.js";
 
@@ -15,41 +14,12 @@ export const registerUser = async (email, password, username) => {
                 profile: { create: {} }
             }
         });
-        const token = jwt.sign({ id: user.id, username: user.username }, process.env.JWT_SECRET || "secretkey", { expiresIn: '1d' });
-        return { userId: user.id, token }
+        return user;
     } catch (err) {
         console.error(err);
-        if (err.code === 'P2002') { // Unique constraint failed
-            throw new Error('Email or username already exists');
-        }
         throw (err)
     }
 
-}
-
-export const loginUser = async (identifier, password) => {
-
-    try {
-        const user = await prisma.user.findFirst({
-            where: {
-                OR: [
-                    { email: identifier },
-                    { username: identifier }
-                ]
-            }
-        });
-
-        const isPasswordValid = bcrypt.compareSync(password, user.passwordHash);
-        if (!user || !isPasswordValid) {
-            throw new Error("Invalid credentials")
-        }
-
-        const token = jwt.sign({ id: user.id, username: user.username }, process.env.JWT_SECRET || "secretkey", { expiresIn: '1d' });
-        return { userId: user.id, token }
-
-    } catch (err) {
-        throw (err)
-    }
 }
 
 export const getUser = async (id) => {
@@ -60,6 +30,27 @@ export const getUser = async (id) => {
                 id: true,
                 username: true,
                 email: true
+            }
+        });
+        if (!user) {
+            throw new Error("User not found")
+        }
+        return user
+    } catch (err) {
+        console.error(err);
+        throw (err)
+    }
+}
+
+export const getUserWithPassword = async (id) => {
+    try {
+        const user = await prisma.user.findUnique({
+            where: { id },
+            select: {
+                id: true,
+                username: true,
+                email: true,
+                passwordHash: true
             }
         });
         if (!user) {

@@ -1,34 +1,45 @@
-import { comparePassword, createProfile, deleteAccount, getProfile, getUser, getUserInfo, loginUser, registerUser, updateEmail, updatePassword, updateProfile, updateUsername, uploadProfilePic } from "../services/userService.js";
+import { comparePassword, createProfile, deleteAccount, getProfile, getUser, getUserWithPassword, getUserInfo, registerUser, updateEmail, updatePassword, updateProfile, updateUsername, uploadProfilePic } from "../services/userService.js";
+import passport from "../config/passport.js";
 
 export const register = async (req, res) => {
 
     const { email, password, username } = req.body;
     try {
-        const { userId, token } = await registerUser(email, password, username)
-        res.status(201).json({ message: "User registered successfully", userId, token });
+        const user = await registerUser(email, password, username);
+
+        req.login(user, (err) => {
+            if (err) {
+                console.error(err);
+                return res.status(500).json({ error: "Login after registration failed" });
+            }
+            res.status(201).json({ message: "User registered successfully", userId: user.id });
+        });
     } catch (err) {
         console.error(err);
-        if (err.code === 'P2002') { // Unique constraint failed
+        if (err.code === 'P2002') {
             return res.status(400).json({ error: "Email or username already exists" });
         }
         res.status(500).json({ error: "Internal server error" });
     }
 }
 
-export const login = async (req, res) => {
-    const { identifier, password } = req.body;
-
-    try {
-        const { userId, token } = await loginUser(identifier, password);
-        res.status(200).json({ message: "Login successful", userId, token });
-
-    } catch (err) {
-        console.error(err);
-        if (err.message = "Invalid credentials") {
-            return res.status(400).json({ error: "Invalid credentials" });
+export const login = async (req, res, next) => {
+    passport.authenticate('local', (err, user, info) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ error: "Internal server error" });
         }
-        res.status(500).json({ error: "Internal server error" });
-    }
+        if (!user) {
+            return res.status(400).json({ error: info.message || "Invalid credentials" });
+        }
+        req.login(user, (err) => {
+            if (err) {
+                console.error(err);
+                return res.status(500).json({ error: "Login failed" });
+            }
+            res.status(200).json({ message: "Login successful", userId: user.id });
+        });
+    })(req, res, next);
 }
 
 export const userInfo = async (req, res) => {
@@ -94,7 +105,7 @@ export const getProfileController = async (req, res) => {
 export const changePassword = async (req, res) => {
     const { oldPassword, newPassword } = req.body;
     try {
-        const user = await getUser(req.user.id)
+        const user = await getUserWithPassword(req.user.id)
         const isOldPasswordValid = comparePassword(oldPassword, user.passwordHash);
         if (!isOldPasswordValid) {
             return res.status(400).json({ error: "Old password is incorrect" });
@@ -152,4 +163,14 @@ export const deleteAccountController = async (req, res) => {
         console.error(err);
         res.status(500).json({ error: "Internal server error" });
     }
+}
+
+export const logout = (req, res) => {
+    req.logout((err) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ error: "Logout failed" });
+        }
+        res.status(200).json({ message: "Logout successful" });
+    });
 }
