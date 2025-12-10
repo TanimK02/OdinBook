@@ -4,26 +4,40 @@ import prisma from "../config/prisma.js";
 import bcrypt from 'bcryptjs';
 
 describe('Tweet Routes', () => {
+    // Helper function to create authenticated agent
+    const createAuthenticatedAgent = async (username, password) => {
+        const agent = request.agent(app);
+        await agent
+            .post("/api/users/login")
+            .send({ identifier: username, password });
+        return agent;
+    };
+
+    // Helper function to create test user
+    const createTestUser = async (username, email, password) => {
+        const passwordHash = bcrypt.hashSync(password, 10);
+        return await prisma.user.create({
+            data: {
+                username,
+                passwordHash,
+                email,
+                profile: { create: {} }
+            }
+        });
+    };
+
     const user = {
         username: "tweetuser",
         email: "tweet@example.com",
         password: "password123"
     };
-    const passwordHash = bcrypt.hashSync(user.password, 10);
     let userId;
 
     beforeAll(async () => {
         await prisma.user.deleteMany({
             where: { username: user.username }
         });
-        const createdUser = await prisma.user.create({
-            data: {
-                username: user.username,
-                passwordHash,
-                email: user.email,
-                profile: { create: {} }
-            }
-        });
+        const createdUser = await createTestUser(user.username, user.email, user.password);
         userId = createdUser.id;
     });
 

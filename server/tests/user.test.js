@@ -4,6 +4,38 @@ import prisma from "../config/prisma.js"
 import bcrypt from 'bcryptjs';
 
 describe('User Routes', () => {
+    // Helper function to create authenticated agent
+    const createAuthenticatedAgent = async (username, password) => {
+        const agent = request.agent(app);
+        await agent
+            .post("/api/users/login")
+            .send({ identifier: username, password })
+            .set("Content-Type", "application/json");
+        return agent;
+    };
+
+    // Helper function to create test user
+    const createTestUser = async (username, email, password) => {
+        const passwordHash = bcrypt.hashSync(password, 10);
+        return await prisma.user.create({
+            data: {
+                username,
+                passwordHash,
+                email,
+                profile: { create: {} }
+            }
+        });
+    };
+
+    // Helper function to cleanup test users
+    const cleanupUsers = async (...usernames) => {
+        await prisma.user.deleteMany({
+            where: {
+                username: { in: usernames }
+            }
+        });
+    };
+
     describe('GET /api/users', () => {
         it('should respond with user route', async () => {
             const res = await request(app).get('/api/users');
@@ -13,20 +45,14 @@ describe('User Routes', () => {
     });
 
     describe('POST /api/users/register', () => {
+        const testUsername = "testuser";
+
         beforeEach(async () => {
-            await prisma.user.deleteMany({
-                where: {
-                    username: "testuser"
-                }
-            });
+            await cleanupUsers(testUsername);
         });
 
         afterAll(async () => {
-            await prisma.user.deleteMany({
-                where: {
-                    username: "testuser"
-                }
-            });
+            await cleanupUsers(testUsername);
         });
 
         it('should return 400 for validation errors - invalid email', async () => {
@@ -138,30 +164,14 @@ describe('User Routes', () => {
             email: "login@example.com",
             password: "password123"
         };
-        const passwordHash = bcrypt.hashSync(user.password, 10);
 
         beforeEach(async () => {
-            await prisma.user.deleteMany({
-                where: {
-                    username: user.username
-                }
-            });
-            await prisma.user.create({
-                data: {
-                    username: user.username,
-                    passwordHash,
-                    email: user.email,
-                    profile: { create: {} }
-                }
-            });
+            await cleanupUsers(user.username);
+            await createTestUser(user.username, user.email, user.password);
         });
 
         afterAll(async () => {
-            await prisma.user.deleteMany({
-                where: {
-                    username: user.username
-                }
-            });
+            await cleanupUsers(user.username);
         });
 
         it('should return 400 for missing fields', async () => {
@@ -215,30 +225,14 @@ describe('User Routes', () => {
             email: "logout@example.com",
             password: "password123"
         };
-        const passwordHash = bcrypt.hashSync(user.password, 10);
 
         beforeEach(async () => {
-            await prisma.user.deleteMany({
-                where: {
-                    username: user.username
-                }
-            });
-            await prisma.user.create({
-                data: {
-                    username: user.username,
-                    passwordHash,
-                    email: user.email,
-                    profile: { create: {} }
-                }
-            });
+            await cleanupUsers(user.username);
+            await createTestUser(user.username, user.email, user.password);
         });
 
         afterAll(async () => {
-            await prisma.user.deleteMany({
-                where: {
-                    username: user.username
-                }
-            });
+            await cleanupUsers(user.username);
         });
 
         it('should return 401 when not logged in', async () => {
@@ -247,12 +241,7 @@ describe('User Routes', () => {
         });
 
         it('should return 200 and logout successfully', async () => {
-            const agent = request.agent(app);
-            await agent
-                .post("/api/users/login")
-                .send({ identifier: user.username, password: user.password })
-                .set("Content-Type", "application/json");
-
+            const agent = await createAuthenticatedAgent(user.username, user.password);
             const res = await agent.post("/api/users/logout");
             expect(res.status).toBe(200);
             expect(res.body.message).toBe("Logout successful");
@@ -265,30 +254,14 @@ describe('User Routes', () => {
             email: "info@example.com",
             password: "password123"
         };
-        const passwordHash = bcrypt.hashSync(user.password, 10);
 
         beforeEach(async () => {
-            await prisma.user.deleteMany({
-                where: {
-                    username: user.username
-                }
-            });
-            await prisma.user.create({
-                data: {
-                    username: user.username,
-                    passwordHash,
-                    email: user.email,
-                    profile: { create: {} }
-                }
-            });
+            await cleanupUsers(user.username);
+            await createTestUser(user.username, user.email, user.password);
         });
 
         afterAll(async () => {
-            await prisma.user.deleteMany({
-                where: {
-                    username: user.username
-                }
-            });
+            await cleanupUsers(user.username);
         });
 
         it('should return 401 when not authenticated', async () => {
@@ -297,12 +270,7 @@ describe('User Routes', () => {
         });
 
         it('should return 200 with user info when authenticated', async () => {
-            const agent = request.agent(app);
-            await agent
-                .post("/api/users/login")
-                .send({ identifier: user.username, password: user.password })
-                .set("Content-Type", "application/json");
-
+            const agent = await createAuthenticatedAgent(user.username, user.password);
             const res = await agent.get("/api/users/userinfo");
             expect(res.status).toBe(200);
             expect(res.body.user.username).toBe(user.username);
@@ -317,30 +285,14 @@ describe('User Routes', () => {
             email: "profile@example.com",
             password: "password123"
         };
-        const passwordHash = bcrypt.hashSync(user.password, 10);
 
         beforeEach(async () => {
-            await prisma.user.deleteMany({
-                where: {
-                    username: user.username
-                }
-            });
-            await prisma.user.create({
-                data: {
-                    username: user.username,
-                    passwordHash,
-                    email: user.email,
-                    profile: { create: {} }
-                }
-            });
+            await cleanupUsers(user.username);
+            await createTestUser(user.username, user.email, user.password);
         });
 
         afterAll(async () => {
-            await prisma.user.deleteMany({
-                where: {
-                    username: user.username
-                }
-            });
+            await cleanupUsers(user.username);
         });
 
         it('should return 401 when not authenticated', async () => {
@@ -351,12 +303,7 @@ describe('User Routes', () => {
         });
 
         it('should return 200 and update profile', async () => {
-            const agent = request.agent(app);
-            await agent
-                .post("/api/users/login")
-                .send({ identifier: user.username, password: user.password })
-                .set("Content-Type", "application/json");
-
+            const agent = await createAuthenticatedAgent(user.username, user.password);
             const res = await agent
                 .post("/api/users/profile")
                 .field('bio', 'Updated bio');
@@ -372,14 +319,10 @@ describe('User Routes', () => {
             email: "getprofile@example.com",
             password: "password123"
         };
-        const passwordHash = bcrypt.hashSync(user.password, 10);
 
         beforeEach(async () => {
-            await prisma.user.deleteMany({
-                where: {
-                    username: user.username
-                }
-            });
+            await cleanupUsers(user.username);
+            const passwordHash = bcrypt.hashSync(user.password, 10);
             await prisma.user.create({
                 data: {
                     username: user.username,
@@ -391,11 +334,7 @@ describe('User Routes', () => {
         });
 
         afterAll(async () => {
-            await prisma.user.deleteMany({
-                where: {
-                    username: user.username
-                }
-            });
+            await cleanupUsers(user.username);
         });
 
         it('should return 401 when not authenticated', async () => {
@@ -404,12 +343,7 @@ describe('User Routes', () => {
         });
 
         it('should return 200 with profile data', async () => {
-            const agent = request.agent(app);
-            await agent
-                .post("/api/users/login")
-                .send({ identifier: user.username, password: user.password })
-                .set("Content-Type", "application/json");
-
+            const agent = await createAuthenticatedAgent(user.username, user.password);
             const res = await agent.get("/api/users/profile");
             expect(res.status).toBe(200);
             expect(res.body.profile.bio).toBe("Test bio");
@@ -422,30 +356,14 @@ describe('User Routes', () => {
             email: "changepass@example.com",
             password: "password123"
         };
-        const passwordHash = bcrypt.hashSync(user.password, 10);
 
         beforeEach(async () => {
-            await prisma.user.deleteMany({
-                where: {
-                    username: user.username
-                }
-            });
-            await prisma.user.create({
-                data: {
-                    username: user.username,
-                    passwordHash,
-                    email: user.email,
-                    profile: { create: {} }
-                }
-            });
+            await cleanupUsers(user.username);
+            await createTestUser(user.username, user.email, user.password);
         });
 
         afterAll(async () => {
-            await prisma.user.deleteMany({
-                where: {
-                    username: user.username
-                }
-            });
+            await cleanupUsers(user.username);
         });
 
         it('should return 401 when not authenticated', async () => {
@@ -457,12 +375,7 @@ describe('User Routes', () => {
         });
 
         it('should return 400 for validation errors - short password', async () => {
-            const agent = request.agent(app);
-            await agent
-                .post("/api/users/login")
-                .send({ identifier: user.username, password: user.password })
-                .set("Content-Type", "application/json");
-
+            const agent = await createAuthenticatedAgent(user.username, user.password);
             const res = await agent
                 .put("/api/users/change-password")
                 .send({ oldPassword: user.password, newPassword: "short" })
@@ -471,12 +384,7 @@ describe('User Routes', () => {
         });
 
         it('should return 400 for incorrect old password', async () => {
-            const agent = request.agent(app);
-            await agent
-                .post("/api/users/login")
-                .send({ identifier: user.username, password: user.password })
-                .set("Content-Type", "application/json");
-
+            const agent = await createAuthenticatedAgent(user.username, user.password);
             const res = await agent
                 .put("/api/users/change-password")
                 .send({ oldPassword: "wrongpassword", newPassword: "newpassword123" })
@@ -486,12 +394,7 @@ describe('User Routes', () => {
         });
 
         it('should return 200 and change password successfully', async () => {
-            const agent = request.agent(app);
-            await agent
-                .post("/api/users/login")
-                .send({ identifier: user.username, password: user.password })
-                .set("Content-Type", "application/json");
-
+            const agent = await createAuthenticatedAgent(user.username, user.password);
             const res = await agent
                 .put("/api/users/change-password")
                 .send({ oldPassword: user.password, newPassword: "newpassword123" })
@@ -512,39 +415,15 @@ describe('User Routes', () => {
             email: "email2@example.com",
             password: "password123"
         };
-        const passwordHash1 = bcrypt.hashSync(user1.password, 10);
-        const passwordHash2 = bcrypt.hashSync(user2.password, 10);
 
         beforeEach(async () => {
-            await prisma.user.deleteMany({
-                where: {
-                    username: { in: [user1.username, user2.username] }
-                }
-            });
-            await prisma.user.create({
-                data: {
-                    username: user1.username,
-                    passwordHash: passwordHash1,
-                    email: user1.email,
-                    profile: { create: {} }
-                }
-            });
-            await prisma.user.create({
-                data: {
-                    username: user2.username,
-                    passwordHash: passwordHash2,
-                    email: user2.email,
-                    profile: { create: {} }
-                }
-            });
+            await cleanupUsers(user1.username, user2.username);
+            await createTestUser(user1.username, user1.email, user1.password);
+            await createTestUser(user2.username, user2.email, user2.password);
         });
 
         afterAll(async () => {
-            await prisma.user.deleteMany({
-                where: {
-                    username: { in: [user1.username, user2.username] }
-                }
-            });
+            await cleanupUsers(user1.username, user2.username);
         });
 
         it('should return 401 when not authenticated', async () => {
@@ -556,12 +435,7 @@ describe('User Routes', () => {
         });
 
         it('should return 400 for invalid email format', async () => {
-            const agent = request.agent(app);
-            await agent
-                .post("/api/users/login")
-                .send({ identifier: user1.username, password: user1.password })
-                .set("Content-Type", "application/json");
-
+            const agent = await createAuthenticatedAgent(user1.username, user1.password);
             const res = await agent
                 .put("/api/users/update-email")
                 .send({ newEmail: "invalidemail" })
@@ -570,12 +444,7 @@ describe('User Routes', () => {
         });
 
         it('should return 400 for duplicate email', async () => {
-            const agent = request.agent(app);
-            await agent
-                .post("/api/users/login")
-                .send({ identifier: user1.username, password: user1.password })
-                .set("Content-Type", "application/json");
-
+            const agent = await createAuthenticatedAgent(user1.username, user1.password);
             const res = await agent
                 .put("/api/users/update-email")
                 .send({ newEmail: user2.email })
@@ -585,12 +454,7 @@ describe('User Routes', () => {
         });
 
         it('should return 200 and update email successfully', async () => {
-            const agent = request.agent(app);
-            await agent
-                .post("/api/users/login")
-                .send({ identifier: user1.username, password: user1.password })
-                .set("Content-Type", "application/json");
-
+            const agent = await createAuthenticatedAgent(user1.username, user1.password);
             const res = await agent
                 .put("/api/users/update-email")
                 .send({ newEmail: "newemail@example.com" })
@@ -611,40 +475,17 @@ describe('User Routes', () => {
             email: "username2@example.com",
             password: "password123"
         };
-        const passwordHash1 = bcrypt.hashSync(user1.password, 10);
-        const passwordHash2 = bcrypt.hashSync(user2.password, 10);
 
         beforeEach(async () => {
             // Delete ALL users to prevent conflicts from previous test suites
             await prisma.user.deleteMany({});
-
-            await prisma.user.create({
-                data: {
-                    username: user1.username,
-                    passwordHash: passwordHash1,
-                    email: user1.email,
-                    profile: { create: {} }
-                }
-            });
-            await prisma.user.create({
-                data: {
-                    username: user2.username,
-                    passwordHash: passwordHash2,
-                    email: user2.email,
-                    profile: { create: {} }
-                }
-            });
+            await createTestUser(user1.username, user1.email, user1.password);
+            await createTestUser(user2.username, user2.email, user2.password);
         });
 
         afterAll(async () => {
-            await prisma.user.deleteMany({
-                where: {
-                    username: { in: [user1.username, user2.username] }
-                }
-            });
-        });
-
-        it('should return 401 when not authenticated', async () => {
+            await cleanupUsers(user1.username, user2.username);
+        }); it('should return 401 when not authenticated', async () => {
             const res = await request(app)
                 .put("/api/users/update-username")
                 .send({ newUsername: "newusername" })
@@ -653,12 +494,7 @@ describe('User Routes', () => {
         });
 
         it('should return 400 for short username', async () => {
-            const agent = request.agent(app);
-            await agent
-                .post("/api/users/login")
-                .send({ identifier: user1.username, password: user1.password })
-                .set("Content-Type", "application/json");
-
+            const agent = await createAuthenticatedAgent(user1.username, user1.password);
             const res = await agent
                 .put("/api/users/update-username")
                 .send({ newUsername: "ab" })
@@ -667,12 +503,7 @@ describe('User Routes', () => {
         });
 
         it('should return 400 for duplicate username', async () => {
-            const agent = request.agent(app);
-            await agent
-                .post("/api/users/login")
-                .send({ identifier: user1.username, password: user1.password })
-                .set("Content-Type", "application/json");
-
+            const agent = await createAuthenticatedAgent(user1.username, user1.password);
             const res = await agent
                 .put("/api/users/update-username")
                 .send({ newUsername: user2.username })
@@ -682,12 +513,7 @@ describe('User Routes', () => {
         });
 
         it('should return 200 and update username successfully', async () => {
-            const agent = request.agent(app);
-            await agent
-                .post("/api/users/login")
-                .send({ identifier: user1.username, password: user1.password })
-                .set("Content-Type", "application/json");
-
+            const agent = await createAuthenticatedAgent(user1.username, user1.password);
             const res = await agent
                 .put("/api/users/update-username")
                 .send({ newUsername: "newusername123" })
@@ -703,30 +529,14 @@ describe('User Routes', () => {
             email: "delete@example.com",
             password: "password123"
         };
-        const passwordHash = bcrypt.hashSync(user.password, 10);
 
         beforeEach(async () => {
-            await prisma.user.deleteMany({
-                where: {
-                    username: user.username
-                }
-            });
-            await prisma.user.create({
-                data: {
-                    username: user.username,
-                    passwordHash,
-                    email: user.email,
-                    profile: { create: {} }
-                }
-            });
+            await cleanupUsers(user.username);
+            await createTestUser(user.username, user.email, user.password);
         });
 
         afterAll(async () => {
-            await prisma.user.deleteMany({
-                where: {
-                    username: user.username
-                }
-            });
+            await cleanupUsers(user.username);
         });
 
         it('should return 401 when not authenticated', async () => {
@@ -735,12 +545,7 @@ describe('User Routes', () => {
         });
 
         it('should return 200 and delete account successfully', async () => {
-            const agent = request.agent(app);
-            await agent
-                .post("/api/users/login")
-                .send({ identifier: user.username, password: user.password })
-                .set("Content-Type", "application/json");
-
+            const agent = await createAuthenticatedAgent(user.username, user.password);
             const res = await agent.delete("/api/users/delete-account");
             expect(res.status).toBe(200);
             expect(res.body.message).toBe("Account deleted successfully");
