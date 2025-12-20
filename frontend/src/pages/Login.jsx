@@ -3,8 +3,15 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { API_URL } from '../config';
 import './Auth.css';
+import { userAPI } from '../api.js';
+import { useQueryClient } from '@tanstack/react-query';
 
-function Login({ onLogin }) {
+function Login() {
+    const queryClient = useQueryClient();
+    const onLogin = async (credentials) => {
+        await userAPI.login(credentials.identifier, credentials.password);
+        queryClient.invalidateQueries(['user']);
+    };
     const [identifier, setIdentifier] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');

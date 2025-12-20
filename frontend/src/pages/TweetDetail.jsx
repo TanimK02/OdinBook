@@ -6,8 +6,9 @@ import TweetCard from '../components/TweetCard';
 import ComposeTweet from '../components/ComposeTweet';
 import { IoArrowBack } from 'react-icons/io5';
 import './TweetDetail.css';
-
-function TweetDetail({ user }) {
+import { useAuth } from '../AuthProvider.jsx';
+function TweetDetail() {
+    const { user } = useAuth();
     const { tweetId } = useParams();
     const navigate = useNavigate();
     const [tweet, setTweet] = useState(null);

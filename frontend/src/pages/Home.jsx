@@ -4,8 +4,10 @@ import { API_URL } from '../config';
 import TweetCard from '../components/TweetCard';
 import ComposeTweet from '../components/ComposeTweet';
 import './Home.css';
+import { useAuth } from '../AuthProvider.jsx';
 
-function Home({ user }) {
+function Home() {
+    const { user } = useAuth();
     const [tweets, setTweets] = useState([]);
     const [page, setPage] = useState(1);
     const [loading, setLoading] = useState(false);

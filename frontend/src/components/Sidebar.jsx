@@ -5,15 +5,26 @@ import { IoLogOutOutline } from 'react-icons/io5';
 import EditProfileModal from './EditProfileModal';
 import AccountSettingsModal from './AccountSettingsModal';
 import './Sidebar.css';
-
-function Sidebar({ user, onLogout, onUserUpdate }) {
+import { useAuth } from '../AuthProvider.jsx';
+import { userAPI } from '../api.js';
+import { useQueryClient } from '@tanstack/react-query';
+function Sidebar() {
+    const { user } = useAuth();
+    const queryClient = useQueryClient();
+    const onUserUpdate = () => {
+        queryClient.invalidateQueries(['user']);
+    };
+    const onLogout = async () => {
+        await userAPI.logout();
+        queryClient.invalidateQueries(['user']);
+    };
     const location = useLocation();
     const [showEditModal, setShowEditModal] = useState(false);
     const [showSettingsModal, setShowSettingsModal] = useState(false);
 
     const handleProfileUpdate = async () => {
         if (onUserUpdate) {
-            await onUserUpdate();
+            onUserUpdate();
         }
     };
 

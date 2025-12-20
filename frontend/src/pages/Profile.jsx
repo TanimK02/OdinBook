@@ -4,8 +4,9 @@ import axios from 'axios';
 import { API_URL } from '../config';
 import TweetCard from '../components/TweetCard';
 import './Profile.css';
-
-function Profile({ currentUser }) {
+import { useAuth } from '../AuthProvider.jsx';
+function Profile() {
+    const { user: currentUser } = useAuth();
     const { userId } = useParams();
     const [profile, setProfile] = useState(null);
     const [tweets, setTweets] = useState([]);
