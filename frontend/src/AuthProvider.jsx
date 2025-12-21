@@ -1,6 +1,7 @@
-import { createContext, useContext } from "react";
+import { createContext, useContext, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { userAPI } from "./api.js";
+import toast from "react-hot-toast";
 const AuthContext = createContext({ user: null });
 
 export const AuthProvider = ({ children }) => {
@@ -12,9 +13,13 @@ export const AuthProvider = ({ children }) => {
         retry: false
     });
 
-    if (isLoading) {
-        return <div className="loading-screen">Loading...</div>;
-    }
+    useEffect(() => {
+        if (isLoading) {
+            toast.loading("Loading user info...", { id: "userInfo", style: { background: 'black', color: '#fff' } });
+        } else {
+            toast.dismiss("userInfo");
+        }
+    }, [isLoading]);
 
     const user = isError ? null : data;
 

@@ -8,7 +8,9 @@ import './Sidebar.css';
 import { useAuth } from '../AuthProvider.jsx';
 import { useLogout } from '../hooks/useUserMutations.js';
 import { useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 function Sidebar() {
+    const navigate = useNavigate();
     const { user } = useAuth();
     const queryClient = useQueryClient();
     const onUserUpdate = () => {
@@ -17,6 +19,7 @@ function Sidebar() {
     const { mutateAsync: logout } = useLogout();
     const onLogout = async () => {
         await logout();
+        navigate('/login');
     };
     const location = useLocation();
     const [showEditModal, setShowEditModal] = useState(false);
