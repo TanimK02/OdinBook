@@ -1,99 +1,38 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
-import axios from 'axios';
-import { API_URL } from '../config';
-import TweetCard from '../components/TweetCard';
+import { useRef } from 'react';
 import ComposeTweet from '../components/ComposeTweet';
+import TweetCard from '../components/TweetCard';
 import './Home.css';
 import { useAuth } from '../AuthProvider.jsx';
-
+import { useInfiniteQuery } from '@tanstack/react-query';
+import { tweetAPI } from '../api.js';
 function Home() {
     const { user } = useAuth();
-    const [tweets, setTweets] = useState([]);
-    const [page, setPage] = useState(1);
-    const [loading, setLoading] = useState(false);
-    const [hasMore, setHasMore] = useState(true);
-    const observer = useRef();
-    const seenTweetIds = useRef(new Set());
+    const {
+        data,
+        fetchNextPage,
+        hasNextPage,
+        isFetchingNextPage,
+        isLoading,
+    } = useInfiniteQuery({
+        queryKey: ['tweets'],
+        queryFn: ({ pageParam = null }) => tweetAPI.getTweets(pageParam),
+        getNextPageParam: (lastPage) => lastPage.nextCursor || null,
+    });
 
-    const lastTweetRef = useCallback(node => {
+    const tweets = data ? data.pages.flatMap(page => page.tweets) : [];
+    const loading = isLoading || isFetchingNextPage;
+    const hasMore = Boolean(hasNextPage);
+
+    const observer = useRef();
+    const lastTweetRef = (node) => {
         if (loading) return;
         if (observer.current) observer.current.disconnect();
         observer.current = new IntersectionObserver(entries => {
             if (entries[0].isIntersecting && hasMore) {
-                setPage(prevPage => prevPage + 1);
+                fetchNextPage();
             }
         });
         if (node) observer.current.observe(node);
-    }, [loading, hasMore]);
-
-    useEffect(() => {
-        loadTweets();
-    }, [page]);
-
-    const loadTweets = async () => {
-        if (loading) return;
-        setLoading(true);
-        try {
-            const token = localStorage.getItem('token');
-            const response = await axios.get(`${API_URL}/api/tweets/tweets/page/${page}`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-
-            const newTweets = response.data.tweets.filter(tweet => !seenTweetIds.current.has(tweet.id));
-            newTweets.forEach(tweet => seenTweetIds.current.add(tweet.id));
-
-            if (newTweets.length === 0) {
-                setHasMore(false);
-            } else {
-                setTweets(prev => [...prev, ...newTweets]);
-            }
-        } catch (error) {
-            console.error('Error loading tweets:', error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleTweetCreated = (newTweet) => {
-        if (!seenTweetIds.current.has(newTweet.id)) {
-            seenTweetIds.current.add(newTweet.id);
-            setTweets(prev => [newTweet, ...prev]);
-        }
-    };
-
-    const handleTweetDeleted = (tweetId) => {
-        setTweets(prev => prev.filter(tweet => tweet.id !== tweetId));
-        seenTweetIds.current.delete(tweetId);
-    };
-
-    const handleTweetLiked = (tweetId) => {
-        setTweets(prev => prev.map(tweet => {
-            if (tweet.id === tweetId) {
-                return {
-                    ...tweet,
-                    _count: {
-                        ...tweet._count,
-                        likes: tweet._count.likes + 1
-                    }
-                };
-            }
-            return tweet;
-        }));
-    };
-
-    const handleTweetUnliked = (tweetId) => {
-        setTweets(prev => prev.map(tweet => {
-            if (tweet.id === tweetId) {
-                return {
-                    ...tweet,
-                    _count: {
-                        ...tweet._count,
-                        likes: Math.max(0, tweet._count.likes - 1)
-                    }
-                };
-            }
-            return tweet;
-        }));
     };
 
     return (
@@ -102,33 +41,18 @@ function Home() {
                 <h1>Home</h1>
             </div>
 
-            <ComposeTweet user={user} onTweetCreated={handleTweetCreated} />
+            <ComposeTweet user={user} />
 
             <div className="tweets-list">
                 {tweets.map((tweet, index) => {
-                    if (tweets.length === index + 1) {
+                    if (index === tweets.length - 1) {
                         return (
                             <div ref={lastTweetRef} key={tweet.id}>
-                                <TweetCard
-                                    tweet={tweet}
-                                    currentUser={user}
-                                    onDelete={handleTweetDeleted}
-                                    onLike={handleTweetLiked}
-                                    onUnlike={handleTweetUnliked}
-                                />
+                                <TweetCard tweet={tweet} likedByCurrentUser={tweet.userLiked} />
                             </div>
                         );
                     } else {
-                        return (
-                            <TweetCard
-                                key={tweet.id}
-                                tweet={tweet}
-                                currentUser={user}
-                                onDelete={handleTweetDeleted}
-                                onLike={handleTweetLiked}
-                                onUnlike={handleTweetUnliked}
-                            />
-                        );
+                        return <TweetCard key={tweet.id} tweet={tweet} likedByCurrentUser={tweet.userLiked} />;
                     }
                 })}
                 {loading && <div className="loading">Loading more tweets...</div>}

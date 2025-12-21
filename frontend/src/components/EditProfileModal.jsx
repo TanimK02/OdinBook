@@ -1,39 +1,33 @@
-import { useState, useEffect, useRef } from 'react';
-import axios from 'axios';
-import { API_URL } from '../config';
+import { useState, useRef } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { FaTimes, FaCamera } from 'react-icons/fa';
 import './EditProfileModal.css';
+import { useUpdateProfile } from '../hooks/useUserMutations';
+import { userAPI } from '../api.js';
 
 function EditProfileModal({ user, onClose, onUpdate }) {
     const [bio, setBio] = useState('');
     const [avatarFile, setAvatarFile] = useState(null);
     const [avatarPreview, setAvatarPreview] = useState(null);
-    const [loading, setLoading] = useState(false);
-    const [loadingProfile, setLoadingProfile] = useState(true);
     const [error, setError] = useState('');
     const fileInputRef = useRef();
 
-    useEffect(() => {
-        loadProfile();
-    }, []);
+    const updateProfileMutation = useUpdateProfile();
 
-    const loadProfile = async () => {
-        try {
-            const token = localStorage.getItem('token');
-            const response = await axios.get(`${API_URL}/api/users/profile`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            setBio(response.data.profile.bio || '');
-            if (response.data.profile.avatarUrl) {
-                setAvatarPreview(response.data.profile.avatarUrl);
+    const { isLoading: loadingProfile } = useQuery({
+        queryKey: ['profile'],
+        queryFn: userAPI.getProfile,
+        onSuccess: (data) => {
+            setBio(data.bio || '');
+            if (data.avatarUrl) {
+                setAvatarPreview(data.avatarUrl);
             }
-        } catch (error) {
-            // Profile doesn't exist yet, that's okay
+        },
+        onError: () => {
             console.log('No profile yet');
-        } finally {
-            setLoadingProfile(false);
-        }
-    };
+        },
+        retry: false
+    });
 
     const handleAvatarSelect = (e) => {
         const file = e.target.files[0];
@@ -46,32 +40,13 @@ function EditProfileModal({ user, onClose, onUpdate }) {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
-        setLoading(true);
 
         try {
-            const token = localStorage.getItem('token');
-            const formData = new FormData();
-            formData.append('bio', bio);
-            if (avatarFile) {
-                formData.append('avatar', avatarFile);
-            }
-
-            await axios.post(`${API_URL}/api/users/profile`,
-                formData,
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        'Content-Type': 'multipart/form-data'
-                    }
-                }
-            );
-
+            await updateProfileMutation.mutateAsync({ bio, avatarFile });
             onUpdate({ ...user });
             onClose();
         } catch (error) {
             setError(error.response?.data?.error || 'Failed to update profile');
-        } finally {
-            setLoading(false);
         }
     };
 
@@ -144,8 +119,8 @@ function EditProfileModal({ user, onClose, onUpdate }) {
                         <button type="button" className="cancel-btn" onClick={onClose}>
                             Cancel
                         </button>
-                        <button type="submit" className="save-btn" disabled={loading}>
-                            {loading ? 'Saving...' : 'Save'}
+                        <button type="submit" className="save-btn" disabled={updateProfileMutation.isLoading}>
+                            {updateProfileMutation.isLoading ? 'Saving...' : 'Save'}
                         </button>
                     </div>
                 </form>

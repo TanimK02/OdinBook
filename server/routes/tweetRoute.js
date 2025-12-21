@@ -7,15 +7,14 @@ const tweetRouter = Router();
 
 tweetRouter.post("/tweet", requireAuth, uploadMiddleware, tweetValidation, postTweet);
 
-tweetRouter.get("/tweets/page/:page", requireAuth, getTweets);
+tweetRouter.get("/tweets", requireAuth, getTweets);
 
 tweetRouter.get("/tweet/:id", requireAuth, getTweet);
 
-tweetRouter.get("/tweets/user/:userId/page/:page", requireAuth, getUserTweets);
-
+tweetRouter.get("/tweets/user/:userId", requireAuth, getUserTweets);
 tweetRouter.delete("/tweet/:id", requireAuth, deleteTweetController);
 
-tweetRouter.get("/tweets/replies/:parentTweetId/page/:page", requireAuth, getReplies);
+tweetRouter.get("/tweets/replies/:parentTweetId", requireAuth, getReplies);
 
 tweetRouter.put("/tweet/:id", requireAuth, uploadMiddleware, updateTweetValidation, updateTweetController);
 

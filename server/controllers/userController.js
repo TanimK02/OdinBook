@@ -1,4 +1,4 @@
-import { comparePassword, createProfile, deleteAccount, getProfile, getUser, getUserWithPassword, getUserInfo, registerUser, updateEmail, updatePassword, updateProfile, updateUsername, uploadProfilePic } from "../services/userService.js";
+import { comparePassword, createProfile, deleteAccount, getProfile, getOtherUserInfo, getUserWithPassword, getUserInfo, registerUser, updateEmail, updatePassword, updateProfile, updateUsername, uploadProfilePic } from "../services/userService.js";
 import passport from "../config/passport.js";
 
 export const register = async (req, res) => {
@@ -174,3 +174,18 @@ export const logout = (req, res) => {
         res.status(200).json({ message: "Logout successful" });
     });
 }
+
+export const getOtherUserInfoController = async (req, res) => {
+    const { userId } = req.params;
+    try {
+        const user = await getOtherUserInfo(userId);
+        res.status(200).json({ user });
+
+    } catch (err) {
+        console.error(err);
+        if (err.message == "User not found") {
+            return res.status(404).json({ error: "User not found" });
+        }
+        res.status(500).json({ error: "Internal server error" });
+    }
+}  

@@ -24,12 +24,19 @@ export const postTweet = async (req, res) => {
 }
 
 export const getTweets = async (req, res) => {
-    const page = parseInt(req.params.page) || 1;
+    const cursor = req.query.cursor;
+    const lastCursor = cursor || null;
     const pageSize = 10;
-
+    const { id } = req.user;
     try {
-        const tweets = await getTweetsPaginated(page, pageSize);
-        return res.status(200).json({ tweets });
+        const tweets = await getTweetsPaginated(lastCursor, pageSize, id);
+        let nextCursor = null;
+        if (tweets.length > pageSize) {
+            nextCursor = tweets[pageSize - 1].createdAt.toISOString();
+            tweets.pop();
+            return res.status(200).json({ tweets, nextCursor });
+        }
+        return res.status(200).json({ tweets, nextCursor });
     } catch (error) {
         console.error("Error fetching tweets:", error);
         return res.status(500).json({ error: "Internal server error" });
@@ -38,9 +45,9 @@ export const getTweets = async (req, res) => {
 
 export const getTweet = async (req, res) => {
     const tweetId = req.params.id;
-
+    const { id } = req.user;
     try {
-        const tweet = await getTweetById(tweetId);
+        const tweet = await getTweetById(tweetId, id);
 
         if (!tweet) {
             return res.status(404).json({ error: "Tweet not found" });
@@ -55,12 +62,19 @@ export const getTweet = async (req, res) => {
 
 export const getUserTweets = async (req, res) => {
     const userId = req.params.userId;
-    const page = parseInt(req.params.page) || 1;
+    const cursor = req.query.cursor;
+    const lastCursor = cursor || null;
     const pageSize = 10;
-
+    const { id } = req.user;
     try {
-        const tweets = await getUserTweetsPaginated(userId, page, pageSize);
-        return res.status(200).json({ tweets });
+        const tweets = await getUserTweetsPaginated(userId, lastCursor, pageSize, id);
+        let nextCursor = null;
+        if (tweets.length > pageSize) {
+            nextCursor = tweets[pageSize - 1].createdAt.toISOString();
+            tweets.pop();
+            return res.status(200).json({ tweets, nextCursor });
+        }
+        return res.status(200).json({ tweets, nextCursor });
     } catch (error) {
         console.error("Error fetching user's tweets:", error);
         return res.status(500).json({ error: "Internal server error" });
@@ -92,12 +106,19 @@ export const deleteTweetController = async (req, res) => {
 
 export const getReplies = async (req, res) => {
     const parentTweetId = req.params.parentTweetId;
-    const page = parseInt(req.params.page) || 1;
+    const cursor = req.query.cursor;
+    const lastCursor = cursor || null;
     const pageSize = 10;
-
+    const { id } = req.user;
     try {
-        const replies = await getRepliesPaginated(parentTweetId, page, pageSize);
-        return res.status(200).json({ replies });
+        const replies = await getRepliesPaginated(parentTweetId, lastCursor, pageSize, id);
+        let nextCursor = null;
+        if (replies.length > pageSize) {
+            nextCursor = replies[pageSize - 1].createdAt.toISOString();
+            replies.pop();
+            return res.status(200).json({ replies, nextCursor });
+        }
+        return res.status(200).json({ replies, nextCursor });
     } catch (error) {
         console.error("Error fetching tweet replies:", error);
         return res.status(500).json({ error: "Internal server error" });

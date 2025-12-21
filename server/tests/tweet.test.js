@@ -139,7 +139,7 @@ describe('Tweet Routes', () => {
         });
     });
 
-    describe('GET /api/tweets/tweets/page/:page', () => {
+    describe('GET /api/tweets/tweets', () => {
         beforeAll(async () => {
             await prisma.tweet.deleteMany({
                 where: { authorId: userId }
@@ -156,29 +156,33 @@ describe('Tweet Routes', () => {
         });
 
         it('should return 401 when not authenticated', async () => {
-            const res = await request(app).get("/api/tweets/tweets/page/1");
+            const res = await request(app).get("/api/tweets/tweets");
             expect(res.status).toBe(401);
         });
 
-        it('should return paginated tweets', async () => {
+        it('should return paginated tweets without cursor', async () => {
             const agent = request.agent(app);
             await agent
                 .post("/api/users/login")
                 .send({ identifier: user.username, password: user.password });
 
-            const res = await agent.get("/api/tweets/tweets/page/1");
+            const res = await agent.get("/api/tweets/tweets");
             expect(res.status).toBe(200);
             expect(res.body.tweets).toBeInstanceOf(Array);
             expect(res.body.tweets.length).toBeLessThanOrEqual(10);
+            expect(res.body).toHaveProperty('nextCursor');
         });
 
-        it('should return second page of tweets', async () => {
+        it('should return next page of tweets with cursor', async () => {
             const agent = request.agent(app);
             await agent
                 .post("/api/users/login")
                 .send({ identifier: user.username, password: user.password });
 
-            const res = await agent.get("/api/tweets/tweets/page/2");
+            const firstRes = await agent.get("/api/tweets/tweets");
+            expect(firstRes.body.nextCursor).toBeTruthy();
+
+            const res = await agent.get(`/api/tweets/tweets?cursor=${firstRes.body.nextCursor}`);
             expect(res.status).toBe(200);
             expect(res.body.tweets).toBeInstanceOf(Array);
             expect(res.body.tweets.length).toBeGreaterThan(0);
@@ -233,7 +237,7 @@ describe('Tweet Routes', () => {
         });
     });
 
-    describe('GET /api/tweets/tweets/user/:userId/page/:page', () => {
+    describe('GET /api/tweets/tweets/user/:userId', () => {
         beforeAll(async () => {
             await prisma.tweet.deleteMany({
                 where: { authorId: userId }
@@ -249,7 +253,7 @@ describe('Tweet Routes', () => {
         });
 
         it('should return 401 when not authenticated', async () => {
-            const res = await request(app).get(`/api/tweets/tweets/user/${userId}/page/1`);
+            const res = await request(app).get(`/api/tweets/tweets/user/${userId}`);
             expect(res.status).toBe(401);
         });
 
@@ -259,15 +263,16 @@ describe('Tweet Routes', () => {
                 .post("/api/users/login")
                 .send({ identifier: user.username, password: user.password });
 
-            const res = await agent.get(`/api/tweets/tweets/user/${userId}/page/1`);
+            const res = await agent.get(`/api/tweets/tweets/user/${userId}`);
             expect(res.status).toBe(200);
             expect(res.body.tweets).toBeInstanceOf(Array);
             expect(res.body.tweets.length).toBe(5);
             expect(res.body.tweets[0].authorId).toBe(userId);
+            expect(res.body).toHaveProperty('nextCursor');
         });
     });
 
-    describe('GET /api/tweets/tweets/replies/:parentTweetId/page/:page', () => {
+    describe('GET /api/tweets/tweets/replies/:parentTweetId', () => {
         let parentTweetId;
 
         beforeAll(async () => {
@@ -291,7 +296,7 @@ describe('Tweet Routes', () => {
         });
 
         it('should return 401 when not authenticated', async () => {
-            const res = await request(app).get(`/api/tweets/tweets/replies/${parentTweetId}/page/1`);
+            const res = await request(app).get(`/api/tweets/tweets/replies/${parentTweetId}`);
             expect(res.status).toBe(401);
         });
 
@@ -301,11 +306,12 @@ describe('Tweet Routes', () => {
                 .post("/api/users/login")
                 .send({ identifier: user.username, password: user.password });
 
-            const res = await agent.get(`/api/tweets/tweets/replies/${parentTweetId}/page/1`);
+            const res = await agent.get(`/api/tweets/tweets/replies/${parentTweetId}`);
             expect(res.status).toBe(200);
             expect(res.body.replies).toBeInstanceOf(Array);
             expect(res.body.replies.length).toBe(3);
             expect(res.body.replies[0].parentTweetId).toBe(parentTweetId);
+            expect(res.body).toHaveProperty('nextCursor');
         });
     });
 

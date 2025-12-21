@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
+export const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
 
 axios.defaults.withCredentials = true;
 
@@ -63,6 +63,10 @@ export const userAPI = {
     deleteAccount: async () => {
         const response = await axios.delete(`${API_URL}/api/users/delete-account`);
         return response.data;
+    },
+    getOtherUserInfo: async (username) => {
+        const response = await axios.get(`${API_URL}/api/users/user/${username}`);
+        return response.data.user;
     }
 };
 
@@ -77,9 +81,11 @@ export const tweetAPI = {
         return response.data.tweet;
     },
 
-    getTweets: async (page = 1) => {
-        const response = await axios.get(`${API_URL}/api/tweets/tweets/page/${page}`);
-        return response.data.tweets;
+    getTweets: async (cursor = null) => {
+        const response = await axios.get(`${API_URL}/api/tweets/tweets`, {
+            params: { cursor }
+        });
+        return { tweets: response.data.tweets, nextCursor: response.data.nextCursor };
     },
 
     getTweet: async (tweetId) => {
@@ -87,14 +93,18 @@ export const tweetAPI = {
         return response.data.tweet;
     },
 
-    getUserTweets: async (userId, page = 1) => {
-        const response = await axios.get(`${API_URL}/api/tweets/tweets/user/${userId}/page/${page}`);
-        return response.data.tweets;
+    getUserTweets: async (userId, cursor = null) => {
+        const response = await axios.get(`${API_URL}/api/tweets/tweets/user/${userId}`, {
+            params: { cursor }
+        });
+        return { tweets: response.data.tweets, nextCursor: response.data.nextCursor };
     },
 
-    getReplies: async (tweetId, page = 1) => {
-        const response = await axios.get(`${API_URL}/api/tweets/tweets/replies/${tweetId}/page/${page}`);
-        return response.data.replies;
+    getReplies: async (tweetId, cursor = null) => {
+        const response = await axios.get(`${API_URL}/api/tweets/tweets/replies/${tweetId}`, {
+            params: { cursor }
+        });
+        return { replies: response.data.replies, nextCursor: response.data.nextCursor };
     },
 
     updateTweet: async (tweetId, content, newImages = []) => {

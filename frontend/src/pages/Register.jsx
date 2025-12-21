@@ -1,48 +1,25 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import { API_URL } from '../config';
 import './Auth.css';
-import { userAPI } from '../api.js';
-import { useQueryClient } from '@tanstack/react-query';
+import { useLogin, useRegister } from '../hooks/useUserMutations.js';
 
 function Register() {
-    const queryClient = useQueryClient();
-    const onLogin = async (credentials) => {
-        await userAPI.login(credentials.identifier, credentials.password);
-        queryClient.invalidateQueries(['user']);
-    };
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
-    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
-
+    const { mutateAsync: login } = useLogin();
+    const { mutateAsync: register, isLoading: registering } = useRegister();
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
-        setLoading(true);
-
         try {
-            const response = await axios.post(`${API_URL}/api/users/register`, {
-                username,
-                email,
-                password
-            });
-
-            const { token, userId } = response.data;
-
-            const userResponse = await axios.get(`${API_URL}/api/users/userinfo`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-
-            onLogin(token, userResponse.data.user);
+            await register({ username, email, password });
+            await login({ identifier: email, password });
             navigate('/');
         } catch (error) {
             setError(error.response?.data?.error || 'Registration failed');
-        } finally {
-            setLoading(false);
         }
     };
 
@@ -80,8 +57,8 @@ function Register() {
                         required
                         minLength={6}
                     />
-                    <button type="submit" disabled={loading}>
-                        {loading ? 'Creating account...' : 'Create account'}
+                    <button type="submit" disabled={registering}>
+                        {registering ? 'Creating account...' : 'Create account'}
                     </button>
                 </form>
 

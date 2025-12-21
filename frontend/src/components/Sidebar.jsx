@@ -6,7 +6,7 @@ import EditProfileModal from './EditProfileModal';
 import AccountSettingsModal from './AccountSettingsModal';
 import './Sidebar.css';
 import { useAuth } from '../AuthProvider.jsx';
-import { userAPI } from '../api.js';
+import { useLogout } from '../hooks/useUserMutations.js';
 import { useQueryClient } from '@tanstack/react-query';
 function Sidebar() {
     const { user } = useAuth();
@@ -14,9 +14,9 @@ function Sidebar() {
     const onUserUpdate = () => {
         queryClient.invalidateQueries(['user']);
     };
+    const { mutateAsync: logout } = useLogout();
     const onLogout = async () => {
-        await userAPI.logout();
-        queryClient.invalidateQueries(['user']);
+        await logout();
     };
     const location = useLocation();
     const [showEditModal, setShowEditModal] = useState(false);

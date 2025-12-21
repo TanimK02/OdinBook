@@ -1,168 +1,89 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useRef, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
-import axios from 'axios';
-import { API_URL } from '../config';
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
+import { tweetAPI, userAPI } from '../api.js';
 import TweetCard from '../components/TweetCard';
 import './Profile.css';
-import { useAuth } from '../AuthProvider.jsx';
-function Profile() {
-    const { user: currentUser } = useAuth();
-    const { userId } = useParams();
-    const [profile, setProfile] = useState(null);
-    const [tweets, setTweets] = useState([]);
-    const [page, setPage] = useState(1);
-    const [loading, setLoading] = useState(false);
-    const [hasMore, setHasMore] = useState(true);
-    const observer = useRef();
-    const seenTweetIds = useRef(new Set());
 
+function Profile() {
+    const { userId } = useParams();
+
+    const { data: profile } = useQuery({
+        queryKey: ['user', userId],
+        queryFn: () => userAPI.getOtherUserInfo(userId),
+        enabled: !!userId
+    });
+
+    const {
+        data,
+        fetchNextPage,
+        hasNextPage,
+        isFetchingNextPage,
+        isLoading,
+    } = useInfiniteQuery({
+        queryKey: ['userTweets', userId],
+        queryFn: ({ pageParam = null }) => tweetAPI.getUserTweets(userId, pageParam),
+        getNextPageParam: (lastPage) => lastPage.nextCursor || null,
+        enabled: !!userId
+    });
+
+    const tweets = data ? data.pages.flatMap(page => page.tweets) : [];
+    const loading = isLoading || isFetchingNextPage;
+    const hasMore = Boolean(hasNextPage);
+
+    const observer = useRef();
     const lastTweetRef = useCallback(node => {
         if (loading) return;
         if (observer.current) observer.current.disconnect();
         observer.current = new IntersectionObserver(entries => {
             if (entries[0].isIntersecting && hasMore) {
-                setPage(prevPage => prevPage + 1);
+                fetchNextPage();
             }
         });
         if (node) observer.current.observe(node);
-    }, [loading, hasMore]);
-
-    useEffect(() => {
-        setTweets([]);
-        setPage(1);
-        setHasMore(true);
-        seenTweetIds.current.clear();
-        loadProfile();
-    }, [userId]);
-
-    useEffect(() => {
-        loadTweets();
-    }, [page, userId]);
-
-    const loadProfile = async () => {
-        try {
-            const token = localStorage.getItem('token');
-            const response = await axios.get(`${API_URL}/api/users/userinfo`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            setProfile(response.data.user);
-        } catch (error) {
-            console.error('Error loading profile:', error);
-        }
-    };
-
-    const loadTweets = async () => {
-        if (loading) return;
-        setLoading(true);
-        try {
-            const token = localStorage.getItem('token');
-            const response = await axios.get(
-                `${API_URL}/api/tweets/tweets/user/${userId}/page/${page}`,
-                { headers: { Authorization: `Bearer ${token}` } }
-            );
-
-            const newTweets = response.data.tweets.filter(tweet => !seenTweetIds.current.has(tweet.id));
-            newTweets.forEach(tweet => seenTweetIds.current.add(tweet.id));
-
-            if (newTweets.length === 0) {
-                setHasMore(false);
-            } else {
-                setTweets(prev => [...prev, ...newTweets]);
-            }
-        } catch (error) {
-            console.error('Error loading tweets:', error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleTweetDeleted = (tweetId) => {
-        setTweets(prev => prev.filter(tweet => tweet.id !== tweetId));
-        seenTweetIds.current.delete(tweetId);
-    };
-
-    const handleTweetLiked = (tweetId) => {
-        setTweets(prev => prev.map(tweet => {
-            if (tweet.id === tweetId) {
-                return {
-                    ...tweet,
-                    _count: { ...tweet._count, likes: tweet._count.likes + 1 }
-                };
-            }
-            return tweet;
-        }));
-    };
-
-    const handleTweetUnliked = (tweetId) => {
-        setTweets(prev => prev.map(tweet => {
-            if (tweet.id === tweetId) {
-                return {
-                    ...tweet,
-                    _count: { ...tweet._count, likes: Math.max(0, tweet._count.likes - 1) }
-                };
-            }
-            return tweet;
-        }));
-    };
+    }, [loading, hasMore, fetchNextPage]);
 
     if (!profile) {
-        return <div className="loading">Loading profile...</div>;
+        return (
+            <div className="profile">
+                <div className="profile-header">
+                    <h1>Profile</h1>
+                </div>
+                <div className="loading">Loading profile...</div>
+            </div>
+        );
     }
 
     return (
         <div className="profile">
             <div className="profile-header">
                 <h1>{profile.username}</h1>
-                <div className="tweet-count">{tweets.length} Posts</div>
             </div>
 
             <div className="profile-info">
-                <div className="profile-banner"></div>
-                <div className="profile-details">
-                    <div className="profile-avatar">
-                        {profile.profile?.avatarUrl ? (
-                            <img src={profile.profile.avatarUrl} alt={profile.username} />
-                        ) : (
-                            profile.username[0].toUpperCase()
-                        )}
-                    </div>
-                    <h2>{profile.username}</h2>
-                    <div className="profile-handle">@{profile.username}</div>
-                    {profile.profile?.bio && (
-                        <div className="profile-bio">{profile.profile.bio}</div>
+                <div className="profile-avatar">
+                    {profile.profile?.avatarUrl ? (
+                        <img src={profile.profile.avatarUrl} alt={profile.username} />
+                    ) : (
+                        profile.username[0].toUpperCase()
                     )}
                 </div>
-            </div>
-
-            <div className="profile-tabs">
-                <div className="tab active">Posts</div>
+                <div className="profile-details">
+                    <h2>{profile.username}</h2>
+                    <p className="profile-bio">{profile.profile?.bio || 'No bio yet'}</p>
+                </div>
             </div>
 
             <div className="tweets-list">
                 {tweets.map((tweet, index) => {
-                    if (tweets.length === index + 1) {
+                    if (index === tweets.length - 1) {
                         return (
                             <div ref={lastTweetRef} key={tweet.id}>
-                                <TweetCard
-                                    tweet={tweet}
-                                    currentUser={currentUser}
-                                    onDelete={handleTweetDeleted}
-                                    onLike={handleTweetLiked}
-                                    onUnlike={handleTweetUnliked}
-                                />
+                                <TweetCard tweet={tweet} likedByCurrentUser={tweet.userLiked} />
                             </div>
                         );
                     } else {
-                        return (
-                            <TweetCard
-                                key={tweet.id}
-                                tweet={tweet}
-                                currentUser={currentUser}
-                                onDelete={handleTweetDeleted}
-                                onLike={handleTweetLiked}
-                                onUnlike={handleTweetUnliked}
-                            />
-                        );
+                        return <TweetCard key={tweet.id} tweet={tweet} likedByCurrentUser={tweet.userLiked} />;
                     }
                 })}
                 {loading && <div className="loading">Loading more tweets...</div>}

@@ -6,6 +6,16 @@ import { faker } from '@faker-js/faker';
 export async function main() {
     console.log('Starting seed...');
 
+    // Clear existing data
+    console.log('Clearing existing data...');
+    await prisma.like.deleteMany();
+    await prisma.retweet.deleteMany();
+    await prisma.follow.deleteMany();
+    await prisma.tweet.deleteMany();
+    await prisma.profile.deleteMany();
+    await prisma.user.deleteMany();
+    console.log('Database cleared!');
+
     // Create users
     const users = [];
     const usernames = [
@@ -17,6 +27,24 @@ export async function main() {
     ];
 
     console.log('Creating users...');
+
+    // Create guest user first
+    const guestUser = await prisma.user.create({
+        data: {
+            username: 'guest',
+            email: 'guest@example.com',
+            passwordHash: bcrypt.hashSync('password123', 10),
+            profile: {
+                create: {
+                    bio: 'Guest user account - feel free to explore!',
+                    avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=guest'
+                }
+            }
+        }
+    });
+    users.push(guestUser);
+    console.log('Created guest user (username: guest, password: password123)');
+
     for (let i = 0; i < usernames.length; i++) {
         const user = await prisma.user.create({
             data: {

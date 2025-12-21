@@ -1,31 +1,22 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import { API_URL } from '../config';
+import { useNavigate } from 'react-router-dom';
 import { FaRegComment, FaRegHeart, FaHeart, FaTrash } from 'react-icons/fa';
 import { formatDistanceToNow } from 'date-fns';
 import './TweetCard.css';
-
-function TweetCard({ tweet, currentUser, isDetail = false, onDelete, onLike, onUnlike }) {
-    const [isLiked, setIsLiked] = useState(false);
+import { useAuth } from '../AuthProvider.jsx';
+import { useToggleLike, useDeleteTweet } from '../hooks/useTweetMutations.js';
+function TweetCard({ tweet, isDetail = false, likedByCurrentUser = false }) {
+    const { user: currentUser } = useAuth();
+    const [isLiked, setIsLiked] = useState(likedByCurrentUser);
     const navigate = useNavigate();
+    const toggleLikeMutation = useToggleLike();
+    const deleteTweetMutation = useDeleteTweet();
 
     const handleLike = async (e) => {
         e.stopPropagation();
         try {
-            const token = localStorage.getItem('token');
-            await axios.post(`${API_URL}/api/interactions/like`,
-                { tweetId: tweet.id },
-                { headers: { Authorization: `Bearer ${token}` } }
-            );
-
-            if (isLiked) {
-                setIsLiked(false);
-                onUnlike?.(tweet.id);
-            } else {
-                setIsLiked(true);
-                onLike?.(tweet.id);
-            }
+            await toggleLikeMutation.mutateAsync(tweet.id);
+            setIsLiked(!isLiked);
         } catch (error) {
             console.error('Error liking tweet:', error);
         }
@@ -36,11 +27,7 @@ function TweetCard({ tweet, currentUser, isDetail = false, onDelete, onLike, onU
         if (!window.confirm('Delete this post?')) return;
 
         try {
-            const token = localStorage.getItem('token');
-            await axios.delete(`${API_URL}/api/tweets/tweet/${tweet.id}`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            onDelete?.(tweet.id);
+            await deleteTweetMutation.mutateAsync(tweet.id);
         } catch (error) {
             console.error('Error deleting tweet:', error);
         }
@@ -65,10 +52,7 @@ function TweetCard({ tweet, currentUser, isDetail = false, onDelete, onLike, onU
                 <div className="parent-tweet-container">
                     <TweetCard
                         tweet={tweet.parentTweet}
-                        currentUser={currentUser}
-                        onDelete={onDelete}
-                        onLike={onLike}
-                        onUnlike={onUnlike}
+                        likedByCurrentUser={tweet.parentTweet.userLiked}
                     />
                     <div className="reply-line"></div>
                 </div>

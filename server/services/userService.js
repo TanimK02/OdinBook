@@ -203,3 +203,28 @@ export const deleteAccount = async (userId) => {
         throw (error)
     }
 }
+
+export const getOtherUserInfo = async (userId) => {
+    try {
+        const user = await prisma.user.findUnique({
+            where: { id: userId },
+            select: {
+                id: true,
+                username: true,
+                profile: {
+                    select: {
+                        bio: true,
+                        avatarUrl: true
+                    }
+                }
+            }
+        });
+        if (!user) {
+            throw new Error("User not found")
+        }
+        return user
+    } catch (err) {
+        console.error(err);
+        throw (err)
+    }
+};

@@ -62,12 +62,11 @@ export const createTweet = async (content, authorId, imageUrls, parentTweetId = 
     }
 }
 
-export const getTweetsPaginated = async (page, pageSize = 10) => {
-    const skip = (page - 1) * pageSize;
+export const getTweetsPaginated = async (cursor, pageSize = 10, reqUserId) => {
     try {
         const tweets = await prisma.tweet.findMany({
-            skip,
-            take: pageSize,
+            where: cursor ? { createdAt: { lt: new Date(cursor) } } : undefined,
+            take: pageSize + 1,
             orderBy: { createdAt: "desc" },
             include: {
                 images: true,
@@ -102,21 +101,44 @@ export const getTweetsPaginated = async (page, pageSize = 10) => {
                         images: true,
                         _count: {
                             select: { likes: true }
-                        }
+                        },
+                        likes: reqUserId ? {
+                            where: { userId: reqUserId },
+                            select: { id: true }
+                        } : false
                     }
                 },
                 _count: {
                     select: { likes: true }
-                }
+                },
+                likes: reqUserId ? {
+                    where: { userId: reqUserId },
+                    select: { id: true }
+                } : false
             }
         });
-        return tweets;
+
+        return tweets.map(tweet => {
+            const userLiked = reqUserId && tweet.likes?.length > 0;
+            const parentUserLiked = reqUserId && tweet.parentTweet?.likes?.length > 0;
+
+            return {
+                ...tweet,
+                userLiked,
+                parentTweet: tweet.parentTweet ? {
+                    ...tweet.parentTweet,
+                    userLiked: parentUserLiked,
+                    likes: undefined
+                } : null,
+                likes: undefined
+            };
+        });
     } catch (error) {
         throw error;
     }
 }
 
-export const getTweetById = async (tweetId) => {
+export const getTweetById = async (tweetId, reqUserId) => {
     try {
         const tweet = await prisma.tweet.findUnique({
             where: { id: tweetId },
@@ -153,27 +175,52 @@ export const getTweetById = async (tweetId) => {
                         images: true,
                         _count: {
                             select: { likes: true }
-                        }
+                        },
+                        likes: reqUserId ? {
+                            where: { userId: reqUserId },
+                            select: { id: true }
+                        } : false
                     }
                 },
                 _count: {
                     select: { likes: true }
-                }
+                },
+                likes: reqUserId ? {
+                    where: { userId: reqUserId },
+                    select: { id: true }
+                } : false
             }
         });
-        return tweet;
+
+        if (!tweet) return null;
+
+        const userLiked = reqUserId && tweet.likes?.length > 0;
+        const parentUserLiked = reqUserId && tweet.parentTweet?.likes?.length > 0;
+
+        return {
+            ...tweet,
+            userLiked,
+            parentTweet: tweet.parentTweet ? {
+                ...tweet.parentTweet,
+                userLiked: parentUserLiked,
+                likes: undefined
+            } : null,
+            likes: undefined
+        };
     } catch (error) {
         throw error;
     }
 }
 
-export const getUserTweetsPaginated = async (userId, page, pageSize = 10) => {
-    const skip = (page - 1) * pageSize;
+export const getUserTweetsPaginated = async (userId, cursor, pageSize = 10, reqUserId) => {
     try {
+        const whereClause = cursor
+            ? { authorId: userId, createdAt: { lt: new Date(cursor) } }
+            : { authorId: userId };
+
         const tweets = await prisma.tweet.findMany({
-            where: { authorId: userId },
-            skip,
-            take: pageSize,
+            where: whereClause,
+            take: pageSize + 1,
             orderBy: { createdAt: "desc" },
             include: {
                 images: true,
@@ -192,10 +239,22 @@ export const getUserTweetsPaginated = async (userId, page, pageSize = 10) => {
                 },
                 _count: {
                     select: { likes: true }
-                }
+                },
+                likes: reqUserId ? {
+                    where: { userId: reqUserId },
+                    select: { id: true }
+                } : false
             }
         });
-        return tweets;
+
+        return tweets.map(tweet => {
+            const userLiked = reqUserId && tweet.likes?.length > 0;
+            return {
+                ...tweet,
+                userLiked,
+                likes: undefined
+            };
+        });
     } catch (error) {
         throw error;
     }
@@ -211,13 +270,15 @@ export const deleteTweet = async (tweetId) => {
     }
 }
 
-export const getRepliesPaginated = async (parentTweetId, page, pageSize = 10) => {
-    const skip = (page - 1) * pageSize;
+export const getRepliesPaginated = async (parentTweetId, cursor, pageSize = 10, reqUserId) => {
     try {
+        const whereClause = cursor
+            ? { parentTweetId, createdAt: { lt: new Date(cursor) } }
+            : { parentTweetId };
+
         const replies = await prisma.tweet.findMany({
-            where: { parentTweetId },
-            skip,
-            take: pageSize,
+            where: whereClause,
+            take: pageSize + 1,
             orderBy: { createdAt: "desc" },
             include: {
                 images: true,
@@ -236,10 +297,22 @@ export const getRepliesPaginated = async (parentTweetId, page, pageSize = 10) =>
                 },
                 _count: {
                     select: { likes: true }
-                }
+                },
+                likes: reqUserId ? {
+                    where: { userId: reqUserId },
+                    select: { id: true }
+                } : false
             }
         });
-        return replies;
+
+        return replies.map(reply => {
+            const userLiked = reqUserId && reply.likes?.length > 0;
+            return {
+                ...reply,
+                userLiked,
+                likes: undefined
+            };
+        });
     } catch (error) {
         throw error;
     }

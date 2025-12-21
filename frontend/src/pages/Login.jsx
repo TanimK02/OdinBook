@@ -1,71 +1,32 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import { API_URL } from '../config';
 import './Auth.css';
-import { userAPI } from '../api.js';
-import { useQueryClient } from '@tanstack/react-query';
-
+import { useLogin } from '../hooks/useUserMutations.js';
 function Login() {
-    const queryClient = useQueryClient();
-    const onLogin = async (credentials) => {
-        await userAPI.login(credentials.identifier, credentials.password);
-        queryClient.invalidateQueries(['user']);
-    };
     const [identifier, setIdentifier] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
-    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
-
+    const { mutateAsync: login, isLoading: loading } = useLogin();
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
-        setLoading(true);
-
         try {
-            const response = await axios.post(`${API_URL}/api/users/login`, {
-                identifier,
-                password
-            });
-
-            const { token, userId } = response.data;
-
-            const userResponse = await axios.get(`${API_URL}/api/users/userinfo`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-
-            onLogin(token, userResponse.data.user);
+            await login({ identifier, password });
             navigate('/');
         } catch (error) {
             setError(error.response?.data?.error || 'Login failed');
-        } finally {
-            setLoading(false);
         }
     };
 
     const handleGuestLogin = async () => {
         setError('');
-        setLoading(true);
 
         try {
-            const response = await axios.post(`${API_URL}/api/users/login`, {
-                identifier: 'guest',
-                password: 'password123'
-            });
-
-            const { token, userId } = response.data;
-
-            const userResponse = await axios.get(`${API_URL}/api/users/userinfo`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-
-            onLogin(token, userResponse.data.user);
+            await login({ identifier: 'guest', password: 'password123' });
             navigate('/');
         } catch (error) {
             setError(error.response?.data?.error || 'Guest login failed');
-        } finally {
-            setLoading(false);
         }
     };
 

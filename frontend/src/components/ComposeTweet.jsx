@@ -1,15 +1,14 @@
 import { useState, useRef } from 'react';
-import axios from 'axios';
-import { API_URL } from '../config';
 import { FaImage, FaTimes } from 'react-icons/fa';
 import './ComposeTweet.css';
+import { useCreateTweet } from '../hooks/useTweetMutations';
 
 function ComposeTweet({ user, onTweetCreated, parentTweetId = null, placeholder = "What's happening?" }) {
     const [content, setContent] = useState('');
     const [images, setImages] = useState([]);
     const [previews, setPreviews] = useState([]);
-    const [loading, setLoading] = useState(false);
     const fileInputRef = useRef();
+    const createTweetMutation = useCreateTweet();
 
     const handleImageSelect = (e) => {
         const files = Array.from(e.target.files);
@@ -34,26 +33,14 @@ function ComposeTweet({ user, onTweetCreated, parentTweetId = null, placeholder 
         e.preventDefault();
         if (!content.trim() && images.length === 0) return;
 
-        setLoading(true);
         try {
-            const formData = new FormData();
-            formData.append('content', content);
-            if (parentTweetId) {
-                formData.append('parentTweetId', parentTweetId);
-            }
-            images.forEach(image => {
-                formData.append('tweetPics', image);
+            const tweet = await createTweetMutation.mutateAsync({
+                content,
+                imageFile: images,
+                parentTweetId
             });
 
-            const token = localStorage.getItem('token');
-            const response = await axios.post(`${API_URL}/api/tweets/tweet`, formData, {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'multipart/form-data'
-                }
-            });
-
-            onTweetCreated(response.data.tweet);
+            onTweetCreated?.(tweet);
             setContent('');
             setImages([]);
             previews.forEach(preview => URL.revokeObjectURL(preview));
@@ -61,8 +48,6 @@ function ComposeTweet({ user, onTweetCreated, parentTweetId = null, placeholder 
         } catch (error) {
             console.error('Error creating tweet:', error);
             alert(error.response?.data?.error || 'Failed to post');
-        } finally {
-            setLoading(false);
         }
     };
 
@@ -129,9 +114,9 @@ function ComposeTweet({ user, onTweetCreated, parentTweetId = null, placeholder 
                         <button
                             type="submit"
                             className="post-btn"
-                            disabled={loading || (!content.trim() && images.length === 0)}
+                            disabled={createTweetMutation.isLoading || (!content.trim() && images.length === 0)}
                         >
-                            {loading ? 'Posting...' : 'Post'}
+                            {createTweetMutation.isLoading ? 'Posting...' : 'Post'}
                         </button>
                     </div>
                 </div>

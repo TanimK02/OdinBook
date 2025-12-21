@@ -1,8 +1,7 @@
 import { useState } from 'react';
-import axios from 'axios';
-import { API_URL } from '../config';
 import { FaTimes } from 'react-icons/fa';
 import './EditProfileModal.css';
+import { useUpdateUsername, useUpdateEmail, useChangePassword } from '../hooks/useUserMutations';
 
 function AccountSettingsModal({ user, onClose, onUpdate }) {
     const [activeTab, setActiveTab] = useState('username');
@@ -11,35 +10,30 @@ function AccountSettingsModal({ user, onClose, onUpdate }) {
     const [oldPassword, setOldPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-    const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
+
+    const updateUsernameMutation = useUpdateUsername();
+    const updateEmailMutation = useUpdateEmail();
+    const changePasswordMutation = useChangePassword();
 
     const handleUsernameUpdate = async (e) => {
         e.preventDefault();
         setError('');
         setSuccess('');
-        setLoading(true);
 
         if (newUsername.length < 3) {
             setError('Username must be at least 3 characters');
-            setLoading(false);
             return;
         }
 
         try {
-            const token = localStorage.getItem('token');
-            await axios.put(`${API_URL}/api/users/update-username`,
-                { newUsername },
-                { headers: { Authorization: `Bearer ${token}` } }
-            );
+            await updateUsernameMutation.mutateAsync({ newUsername });
             setSuccess('Username updated successfully!');
             setNewUsername('');
             onUpdate({ ...user, username: newUsername });
         } catch (error) {
             setError(error.response?.data?.error || 'Failed to update username');
-        } finally {
-            setLoading(false);
         }
     };
 
@@ -47,21 +41,14 @@ function AccountSettingsModal({ user, onClose, onUpdate }) {
         e.preventDefault();
         setError('');
         setSuccess('');
-        setLoading(true);
 
         try {
-            const token = localStorage.getItem('token');
-            await axios.put(`${API_URL}/api/users/update-email`,
-                { newEmail },
-                { headers: { Authorization: `Bearer ${token}` } }
-            );
+            await updateEmailMutation.mutateAsync({ newEmail });
             setSuccess('Email updated successfully!');
             setNewEmail('');
             onUpdate({ ...user, email: newEmail });
         } catch (error) {
             setError(error.response?.data?.error || 'Failed to update email');
-        } finally {
-            setLoading(false);
         }
     };
 
@@ -69,34 +56,25 @@ function AccountSettingsModal({ user, onClose, onUpdate }) {
         e.preventDefault();
         setError('');
         setSuccess('');
-        setLoading(true);
 
         if (newPassword !== confirmPassword) {
             setError('Passwords do not match');
-            setLoading(false);
             return;
         }
 
         if (newPassword.length < 6) {
             setError('Password must be at least 6 characters');
-            setLoading(false);
             return;
         }
 
         try {
-            const token = localStorage.getItem('token');
-            await axios.put(`${API_URL}/api/users/change-password`,
-                { oldPassword, newPassword },
-                { headers: { Authorization: `Bearer ${token}` } }
-            );
+            await changePasswordMutation.mutateAsync({ oldPassword, newPassword });
             setSuccess('Password changed successfully!');
             setOldPassword('');
             setNewPassword('');
             setConfirmPassword('');
         } catch (error) {
             setError(error.response?.data?.error || 'Failed to change password');
-        } finally {
-            setLoading(false);
         }
     };
 
@@ -153,8 +131,8 @@ function AccountSettingsModal({ user, onClose, onUpdate }) {
                                 />
                             </div>
                             <div className="modal-actions">
-                                <button type="submit" className="save-btn" disabled={loading}>
-                                    {loading ? 'Updating...' : 'Update Username'}
+                                <button type="submit" className="save-btn" disabled={updateUsernameMutation.isLoading}>
+                                    {updateUsernameMutation.isLoading ? 'Updating...' : 'Update Username'}
                                 </button>
                             </div>
                         </form>
@@ -177,8 +155,8 @@ function AccountSettingsModal({ user, onClose, onUpdate }) {
                                 />
                             </div>
                             <div className="modal-actions">
-                                <button type="submit" className="save-btn" disabled={loading}>
-                                    {loading ? 'Updating...' : 'Update Email'}
+                                <button type="submit" className="save-btn" disabled={updateEmailMutation.isLoading}>
+                                    {updateEmailMutation.isLoading ? 'Updating...' : 'Update Email'}
                                 </button>
                             </div>
                         </form>
@@ -219,8 +197,8 @@ function AccountSettingsModal({ user, onClose, onUpdate }) {
                                 />
                             </div>
                             <div className="modal-actions">
-                                <button type="submit" className="save-btn" disabled={loading}>
-                                    {loading ? 'Changing...' : 'Change Password'}
+                                <button type="submit" className="save-btn" disabled={changePasswordMutation.isLoading}>
+                                    {changePasswordMutation.isLoading ? 'Changing...' : 'Change Password'}
                                 </button>
                             </div>
                         </form>
