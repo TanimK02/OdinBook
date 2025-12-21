@@ -1,4 +1,4 @@
-import { createContext, useContext } from "react";
+import { createContext, useContext, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { userAPI } from "./api.js";
 const AuthContext = createContext({ user: null });
@@ -15,7 +15,6 @@ export const AuthProvider = ({ children }) => {
     if (isLoading) {
         return <div className="loading-screen">Loading... If taking too long, usually due to server waking up from sleep.</div>;
     }
-
     const user = isError ? null : data;
 
     return (

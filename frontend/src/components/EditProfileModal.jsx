@@ -4,12 +4,12 @@ import { FaTimes, FaCamera } from 'react-icons/fa';
 import './EditProfileModal.css';
 import { useUpdateProfile } from '../hooks/useUserMutations';
 import { userAPI } from '../api.js';
+import toast from 'react-hot-toast';
 
 function EditProfileModal({ user, onClose, onUpdate }) {
     const [bio, setBio] = useState('');
     const [avatarFile, setAvatarFile] = useState(null);
     const [avatarPreview, setAvatarPreview] = useState(null);
-    const [error, setError] = useState('');
     const fileInputRef = useRef();
 
     const updateProfileMutation = useUpdateProfile();
@@ -39,16 +39,32 @@ function EditProfileModal({ user, onClose, onUpdate }) {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError('');
 
-        try {
-            await updateProfileMutation.mutateAsync({ bio, avatarFile });
-            onUpdate({ ...user });
-            onClose();
-        } catch (error) {
-            setError(error.response?.data?.error || 'Failed to update profile');
-        }
+        toast.promise(
+            updateProfileMutation.mutateAsync({ bio, avatarFile }),
+            {
+                loading: 'Updating profile...',
+                success: () => {
+                    onUpdate();
+                    onClose();
+                    console.log('Profile updated successfully');
+                    return 'Profile updated';
+                },
+                error: (err) => {
+                    console.log(err.response?.data?.error || 'Failed to update profile');
+                    return 'Failed to update profile';
+                },
+            },
+            {
+                style: {
+                    background: 'black',
+                    color: '#fff',
+                    border: '1px solid #2f3336',
+                },
+            }
+        );
     };
+
 
     if (loadingProfile) {
         return (
@@ -77,8 +93,6 @@ function EditProfileModal({ user, onClose, onUpdate }) {
                         <FaTimes size={20} />
                     </button>
                 </div>
-
-                {error && <div className="error-message">{error}</div>}
 
                 <form onSubmit={handleSubmit}>
                     <div className="avatar-upload-section">

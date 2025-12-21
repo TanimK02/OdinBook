@@ -75,7 +75,6 @@
     font-size: 20px;
     cursor: pointer;
     transition: background-color 0.2s;
-    width: fit-content;
     text-align: left;
 }
 
@@ -111,8 +110,8 @@
 }
 
 .logout-btn svg {
-    width: 30px;
-    height: 30px;
+    width: 26px;
+    height: 26px;
     flex-shrink: 0;
 }
 
@@ -233,7 +232,6 @@
     }
 
     .logo,
-    .logout-btn,
     .user-info {
         display: none;
     }
@@ -243,6 +241,7 @@
         flex: 1;
         justify-content: space-around;
         gap: 0;
+        width: 50%
     }
 
     .nav-item {
@@ -255,4 +254,19 @@
     .nav-item span {
         display: none;
     }
+
+    .bottomSettings {
+        display: flex;
+        width: 50%;
+    }
+
+    .settings-btn,
+    .logout-btn {
+        margin: 0;
+        justify-content: center;
+        width: 100%;
+        border-radius: 0;
+        padding: 16px;
+    }
+
 }

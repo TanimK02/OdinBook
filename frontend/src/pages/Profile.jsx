@@ -4,14 +4,18 @@ import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { tweetAPI, userAPI } from '../api.js';
 import TweetCard from '../components/TweetCard';
 import './Profile.css';
+import toast from 'react-hot-toast';
 
 function Profile() {
     const { userId } = useParams();
 
-    const { data: profile } = useQuery({
+    const { data: profile, isError: profileError } = useQuery({
         queryKey: ['user', userId],
         queryFn: () => userAPI.getOtherUserInfo(userId),
-        enabled: !!userId
+        enabled: !!userId,
+        onError: (error) => {
+            toast.error(error.response?.data?.error || 'Failed to load profile', { style: { background: 'black', color: '#fff', borderColor: '#2f3336', borderWidth: '1px', borderStyle: 'solid' } });
+        },
     });
 
     const {
@@ -20,11 +24,15 @@ function Profile() {
         hasNextPage,
         isFetchingNextPage,
         isLoading,
+        isError: tweetsError,
     } = useInfiniteQuery({
         queryKey: ['userTweets', userId],
         queryFn: ({ pageParam = null }) => tweetAPI.getUserTweets(userId, pageParam),
         getNextPageParam: (lastPage) => lastPage.nextCursor || null,
-        enabled: !!userId
+        enabled: !!userId,
+        onError: (error) => {
+            toast.error(error.response?.data?.error || 'Failed to load tweets', { style: { background: 'black', color: '#fff', borderColor: '#2f3336', borderWidth: '1px', borderStyle: 'solid' } });
+        },
     });
 
     const tweets = data ? data.pages.flatMap(page => page.tweets) : [];
@@ -42,6 +50,17 @@ function Profile() {
         });
         if (node) observer.current.observe(node);
     }, [loading, hasMore, fetchNextPage]);
+
+    if (profileError) {
+        return (
+            <div className="profile">
+                <div className="profile-header">
+                    <h1>Profile</h1>
+                </div>
+                <div className="error-message">Failed to load profile. Please try again.</div>
+            </div>
+        );
+    }
 
     if (!profile) {
         return (
@@ -75,6 +94,7 @@ function Profile() {
             </div>
 
             <div className="tweets-list">
+                {tweetsError && <div className="error-message">Failed to load tweets. Please try again.</div>}
                 {tweets.map((tweet, index) => {
                     if (index === tweets.length - 1) {
                         return (
@@ -87,8 +107,8 @@ function Profile() {
                     }
                 })}
                 {loading && <div className="loading">Loading more tweets...</div>}
-                {!hasMore && tweets.length > 0 && <div className="end-message">No more posts</div>}
-                {tweets.length === 0 && !loading && <div className="end-message">No posts yet</div>}
+                {!hasMore && tweets.length > 0 && !tweetsError && <div className="end-message">No more posts</div>}
+                {tweets.length === 0 && !loading && !tweetsError && <div className="end-message">No posts yet</div>}
             </div>
         </div>
     );

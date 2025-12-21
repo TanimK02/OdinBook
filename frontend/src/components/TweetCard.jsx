@@ -5,6 +5,7 @@ import { formatDistanceToNow } from 'date-fns';
 import './TweetCard.css';
 import { useAuth } from '../AuthProvider.jsx';
 import { useToggleLike, useDeleteTweet } from '../hooks/useTweetMutations.js';
+import toast from 'react-hot-toast';
 function TweetCard({ tweet, isDetail = false, likedByCurrentUser = false }) {
     const { user: currentUser } = useAuth();
     const [isLiked, setIsLiked] = useState(likedByCurrentUser);
@@ -19,6 +20,7 @@ function TweetCard({ tweet, isDetail = false, likedByCurrentUser = false }) {
             setIsLiked(!isLiked);
         } catch (error) {
             console.error('Error liking tweet:', error);
+            toast.error(error.response?.data?.error || 'Failed to like post', { style: { background: 'black', color: '#fff', borderColor: '#2f3336', borderWidth: '1px', borderStyle: 'solid' } });
         }
     };
 
@@ -30,6 +32,7 @@ function TweetCard({ tweet, isDetail = false, likedByCurrentUser = false }) {
             await deleteTweetMutation.mutateAsync(tweet.id);
         } catch (error) {
             console.error('Error deleting tweet:', error);
+            toast.error(error.response?.data?.error || 'Failed to delete post', { style: { background: 'black', color: '#fff', borderColor: '#2f3336', borderWidth: '1px', borderStyle: 'solid' } });
         }
     };
 

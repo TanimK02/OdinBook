@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { FaTimes } from 'react-icons/fa';
 import './EditProfileModal.css';
 import { useUpdateUsername, useUpdateEmail, useChangePassword } from '../hooks/useUserMutations';
+import toast from 'react-hot-toast';
 
 function AccountSettingsModal({ user, onClose, onUpdate }) {
     const [activeTab, setActiveTab] = useState('username');
@@ -10,8 +11,6 @@ function AccountSettingsModal({ user, onClose, onUpdate }) {
     const [oldPassword, setOldPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-    const [error, setError] = useState('');
-    const [success, setSuccess] = useState('');
 
     const updateUsernameMutation = useUpdateUsername();
     const updateEmailMutation = useUpdateEmail();
@@ -19,62 +18,65 @@ function AccountSettingsModal({ user, onClose, onUpdate }) {
 
     const handleUsernameUpdate = async (e) => {
         e.preventDefault();
-        setError('');
-        setSuccess('');
 
         if (newUsername.length < 3) {
-            setError('Username must be at least 3 characters');
+            const errorMsg = 'Username must be at least 3 characters';
+            toast.error(errorMsg, { style: { background: 'black', color: '#fff', borderColor: '#2f3336', borderWidth: '1px', borderStyle: 'solid' } });
             return;
         }
 
         try {
             await updateUsernameMutation.mutateAsync({ newUsername });
-            setSuccess('Username updated successfully!');
+            const successMsg = 'Username updated successfully!';
+            toast.success(successMsg, { style: { background: 'black', color: '#fff', borderColor: '#2f3336', borderWidth: '1px', borderStyle: 'solid' } });
             setNewUsername('');
             onUpdate({ ...user, username: newUsername });
         } catch (error) {
-            setError(error.response?.data?.error || 'Failed to update username');
+            const errorMsg = error.response?.data?.error || 'Failed to update username';
+            toast.error(errorMsg, { style: { background: 'black', color: '#fff', borderColor: '#2f3336', borderWidth: '1px', borderStyle: 'solid' } });
         }
     };
 
     const handleEmailUpdate = async (e) => {
         e.preventDefault();
-        setError('');
-        setSuccess('');
 
         try {
             await updateEmailMutation.mutateAsync({ newEmail });
-            setSuccess('Email updated successfully!');
+            const successMsg = 'Email updated successfully!';
+            toast.success(successMsg, { style: { background: 'black', color: '#fff', borderColor: '#2f3336', borderWidth: '1px', borderStyle: 'solid' } });
             setNewEmail('');
             onUpdate({ ...user, email: newEmail });
         } catch (error) {
-            setError(error.response?.data?.error || 'Failed to update email');
+            const errorMsg = error.response?.data?.error || 'Failed to update email';
+            toast.error(errorMsg, { style: { background: 'black', color: '#fff', borderColor: '#2f3336', borderWidth: '1px', borderStyle: 'solid' } });
         }
     };
 
     const handlePasswordUpdate = async (e) => {
         e.preventDefault();
-        setError('');
-        setSuccess('');
 
         if (newPassword !== confirmPassword) {
-            setError('Passwords do not match');
+            const errorMsg = 'Passwords do not match';
+            toast.error(errorMsg, { style: { background: 'black', color: '#fff', borderColor: '#2f3336', borderWidth: '1px', borderStyle: 'solid' } });
             return;
         }
 
         if (newPassword.length < 6) {
-            setError('Password must be at least 6 characters');
+            const errorMsg = 'Password must be at least 6 characters';
+            toast.error(errorMsg, { style: { background: 'black', color: '#fff', borderColor: '#2f3336', borderWidth: '1px', borderStyle: 'solid' } });
             return;
         }
 
         try {
             await changePasswordMutation.mutateAsync({ oldPassword, newPassword });
-            setSuccess('Password changed successfully!');
+            const successMsg = 'Password changed successfully!';
+            toast.success(successMsg, { style: { background: 'black', color: '#fff', borderColor: '#2f3336', borderWidth: '1px', borderStyle: 'solid' } });
             setOldPassword('');
             setNewPassword('');
             setConfirmPassword('');
         } catch (error) {
-            setError(error.response?.data?.error || 'Failed to change password');
+            const errorMsg = error.response?.data?.error || 'Failed to change password';
+            toast.error(errorMsg, { style: { background: 'black', color: '#fff', borderColor: '#2f3336', borderWidth: '1px', borderStyle: 'solid' } });
         }
     };
 
@@ -91,26 +93,23 @@ function AccountSettingsModal({ user, onClose, onUpdate }) {
                 <div className="settings-tabs">
                     <button
                         className={`tab-btn ${activeTab === 'username' ? 'active' : ''}`}
-                        onClick={() => { setActiveTab('username'); setError(''); setSuccess(''); }}
+                        onClick={() => setActiveTab('username')}
                     >
                         Username
                     </button>
                     <button
                         className={`tab-btn ${activeTab === 'email' ? 'active' : ''}`}
-                        onClick={() => { setActiveTab('email'); setError(''); setSuccess(''); }}
+                        onClick={() => setActiveTab('email')}
                     >
                         Email
                     </button>
                     <button
                         className={`tab-btn ${activeTab === 'password' ? 'active' : ''}`}
-                        onClick={() => { setActiveTab('password'); setError(''); setSuccess(''); }}
+                        onClick={() => setActiveTab('password')}
                     >
                         Password
                     </button>
                 </div>
-
-                {error && <div className="error-message">{error}</div>}
-                {success && <div className="success-message">{success}</div>}
 
                 <div className="settings-content">
                     {activeTab === 'username' && (

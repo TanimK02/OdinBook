@@ -145,21 +145,22 @@
     margin-bottom: 12px;
     overflow: hidden;
     display: grid;
-    gap: 2px;
+    gap: 5px;
 }
 
 .tweet-images.grid-1 {
-    grid-template-columns: 1fr;
+    grid-template-columns: min-content;
     max-height: 300px;
+    ;
 }
 
 .tweet-images.grid-2 {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, min-content);
     max-height: 300px;
 }
 
 .tweet-images.grid-3 {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, min-content);
     max-height: 300px;
 }
 
@@ -168,13 +169,12 @@
 }
 
 .tweet-images.grid-4 {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, min-content);
     max-height: 300px;
 }
 
 .tweet-images img {
     max-height: 300px;
-    ;
     object-fit: cover;
     border-radius: 16px;
 }
