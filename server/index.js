@@ -26,17 +26,19 @@ app.use(express.json());
 app.use(session({
     store: new (pgSession(session))({
         pool: pgPool,
-        tableName: 'session'
+        tableName: 'session',
+        createTableIfMissing: true
     }),
     secret: process.env.SESSION_SECRET || 'yoursecret',
     resave: false,
     saveUninitialized: false,
     cookie: {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',        // true in production
+        secure: process.env.NODE_ENV === 'production',
         maxAge: 24 * 60 * 60 * 1000
     }
 }));
+
 
 // Initialize Passport
 app.use(passport.initialize());
