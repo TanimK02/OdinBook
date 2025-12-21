@@ -55,8 +55,8 @@ function Home() {
                         return <TweetCard key={tweet.id} tweet={tweet} likedByCurrentUser={tweet.userLiked} />;
                     }
                 })}
-                {loading && <div className="loading">Loading more tweets...</div>}
-                {!hasMore && tweets.length > 0 && <div className="end-message">You've reached the end!</div>}
+                {isLoading && <div className="loading">Loading more tweets...</div>}
+                {!hasNextPage && <div className="end-message">You've reached the end!</div>}
             </div>
         </div>
     );
