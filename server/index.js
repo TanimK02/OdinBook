@@ -6,6 +6,12 @@ import { likeRetweetRouter } from './routes/likeRetweetRouter.js';
 import { userRouter } from './routes/userRoute.js';
 import { tweetRouter } from './routes/tweetRoute.js';
 import session from 'express-session';
+import pgSession from 'connect-pg-simple';
+import { Pool } from 'pg';
+
+const pgPool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+});
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -18,12 +24,16 @@ app.set('trust proxy', 1);
 app.use(express.json());
 
 app.use(session({
+    store: new (pgSession(session))({
+        pool: pgPool,
+        tableName: 'session'
+    }),
     secret: process.env.SESSION_SECRET || 'yoursecret',
     resave: false,
     saveUninitialized: false,
     cookie: {
         httpOnly: true,
-        secure: false,        // true in production
+        secure: process.env.NODE_ENV === 'production',        // true in production
         maxAge: 24 * 60 * 60 * 1000
     }
 }));
