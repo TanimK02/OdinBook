@@ -32,10 +32,11 @@
     bottom: 0;
     width: 2px;
     background-color: #2f3336;
+    height: calc(100% - 42px);
 }
 
 .tweet-card.is-reply {
-    padding-top: 4px;
+    padding-top: 10px;
 }
 
 .replying-to {
