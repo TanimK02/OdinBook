@@ -46,6 +46,12 @@
 
 .replying-to .mention {
     color: #1d9bf0;
+    cursor: pointer;
+    transition: text-decoration 0.2s;
+}
+
+.replying-to .mention:hover {
+    text-decoration: underline;
 }
 
 .tweet-avatar {

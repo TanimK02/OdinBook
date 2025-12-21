@@ -60,7 +60,7 @@ function TweetCard({ tweet, isDetail = false, likedByCurrentUser = false }) {
                     <div className="reply-line"></div>
                 </div>
             )}
-            <div className={`tweet-card ${isDetail ? 'detail' : ''} ${tweet.parentTweet ? 'is-reply' : ''}`} onClick={handleClick}>
+            <div className={`tweet-card ${isDetail ? 'detail' : ''} ${tweet.parentTweet ? 'is-reply' : ''}`} >
                 <div className="tweet-avatar" onClick={handleProfileClick}>
                     {tweet.author?.profile?.avatarUrl ? (
                         <img src={tweet.author.profile.avatarUrl} alt={tweet.author.username} />
@@ -69,10 +69,13 @@ function TweetCard({ tweet, isDetail = false, likedByCurrentUser = false }) {
                     )}
                 </div>
 
-                <div className="tweet-content">
+                <div className="tweet-content" onClick={handleClick}>
                     {tweet.parentTweet && (
                         <div className="replying-to">
-                            Replying to <span className="mention">@{tweet.parentTweet.author.username}</span>
+                            Replying to <span className="mention" onClick={(e) => {
+                                e.stopPropagation();
+                                navigate(`/profile/${tweet.parentTweet.author.id}`)
+                            }}>@{tweet.parentTweet.author.username}</span>
                         </div>
                     )}
                     <div className="tweet-header">
