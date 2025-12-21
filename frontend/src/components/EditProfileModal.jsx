@@ -4,6 +4,7 @@ import { FaTimes, FaCamera } from 'react-icons/fa';
 import './EditProfileModal.css';
 import { useUpdateProfile } from '../hooks/useUserMutations';
 import { userAPI } from '../api.js';
+import toast from 'react-hot-toast';
 
 function EditProfileModal({ user, onClose, onUpdate }) {
     const [bio, setBio] = useState('');
@@ -46,7 +47,9 @@ function EditProfileModal({ user, onClose, onUpdate }) {
             onUpdate({ ...user });
             onClose();
         } catch (error) {
-            setError(error.response?.data?.error || 'Failed to update profile');
+            const errorMsg = error.response?.data?.error || 'Failed to update profile';
+            setError(errorMsg);
+            toast.error(errorMsg, { style: { background: 'black', color: '#fff', borderColor: '#2f3336', borderWidth: '1px', borderStyle: 'solid' } });
         }
     };
 

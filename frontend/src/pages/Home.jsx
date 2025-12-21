@@ -5,6 +5,7 @@ import './Home.css';
 import { useAuth } from '../AuthProvider.jsx';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { tweetAPI } from '../api.js';
+import toast from 'react-hot-toast';
 function Home() {
     const { user } = useAuth();
     const {
@@ -13,10 +14,15 @@ function Home() {
         hasNextPage,
         isFetchingNextPage,
         isLoading,
+        isError,
+        error,
     } = useInfiniteQuery({
         queryKey: ['tweets'],
         queryFn: ({ pageParam = null }) => tweetAPI.getTweets(pageParam),
         getNextPageParam: (lastPage) => lastPage.nextCursor || null,
+        onError: (error) => {
+            toast.error(error.response?.data?.error || 'Failed to load tweets', { style: { background: 'black', color: '#fff', borderColor: '#2f3336', borderWidth: '1px', borderStyle: 'solid' } });
+        },
     });
 
     const tweets = data ? data.pages.flatMap(page => page.tweets) : [];
@@ -44,6 +50,7 @@ function Home() {
             <ComposeTweet user={user} />
 
             <div className="tweets-list">
+                {isError && <div className="error-message">Failed to load tweets. Please try again.</div>}
                 {tweets.map((tweet, index) => {
                     if (index === tweets.length - 1) {
                         return (
@@ -56,7 +63,7 @@ function Home() {
                     }
                 })}
                 {isLoading && <div className="loading">Loading more tweets...</div>}
-                {!hasNextPage && <div className="end-message">You've reached the end!</div>}
+                {!hasNextPage && !isError && <div className="end-message">You've reached the end!</div>}
             </div>
         </div>
     );

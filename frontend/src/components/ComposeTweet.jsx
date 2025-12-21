@@ -2,6 +2,7 @@ import { useState, useRef } from 'react';
 import { FaImage, FaTimes } from 'react-icons/fa';
 import './ComposeTweet.css';
 import { useCreateTweet } from '../hooks/useTweetMutations';
+import toast from 'react-hot-toast';
 
 function ComposeTweet({ user, onTweetCreated, parentTweetId = null, placeholder = "What's happening?" }) {
     const [content, setContent] = useState('');
@@ -13,7 +14,7 @@ function ComposeTweet({ user, onTweetCreated, parentTweetId = null, placeholder 
     const handleImageSelect = (e) => {
         const files = Array.from(e.target.files);
         if (images.length + files.length > 4) {
-            alert('Maximum 4 images allowed');
+            toast.error('Maximum 4 images allowed', { style: { background: 'black', color: '#fff', borderColor: '#2f3336', borderWidth: '1px', borderStyle: 'solid' } });
             return;
         }
 
@@ -34,12 +35,27 @@ function ComposeTweet({ user, onTweetCreated, parentTweetId = null, placeholder 
         if (!content.trim() && images.length === 0) return;
 
         try {
-            const tweet = await createTweetMutation.mutateAsync({
-                content,
-                imageFile: images,
-                parentTweetId
-            });
-
+            await toast.promise(
+                createTweetMutation.mutateAsync({
+                    content,
+                    imageFile: images,
+                    parentTweetId,
+                }),
+                {
+                    loading: "Posting tweet...",
+                    success: "Tweet posted",
+                    error: "Failed to post tweet",
+                },
+                {
+                    style: {
+                        background: "black",
+                        color: "#fff",
+                        borderColor: "#2f3336",
+                        borderWidth: "1px",
+                        borderStyle: "solid",
+                    },
+                }
+            );
             onTweetCreated?.(tweet);
             setContent('');
             setImages([]);
@@ -47,7 +63,6 @@ function ComposeTweet({ user, onTweetCreated, parentTweetId = null, placeholder 
             setPreviews([]);
         } catch (error) {
             console.error('Error creating tweet:', error);
-            alert(error.response?.data?.error || 'Failed to post');
         }
     };
 

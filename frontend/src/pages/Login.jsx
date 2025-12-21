@@ -2,31 +2,28 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Auth.css';
 import { useLogin } from '../hooks/useUserMutations.js';
+import toast from 'react-hot-toast';
 function Login() {
     const [identifier, setIdentifier] = useState('');
     const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
     const navigate = useNavigate();
     const { mutateAsync: login, isLoading: loading } = useLogin();
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError('');
         try {
             await login({ identifier, password });
             navigate('/');
         } catch (error) {
-            setError(error.response?.data?.error || 'Login failed');
+            toast.error(error.response?.data?.error || 'Login failed', { style: { background: 'black', color: '#fff', borderColor: '#2f3336', borderWidth: '1px', borderStyle: 'solid' } });
         }
     };
 
     const handleGuestLogin = async () => {
-        setError('');
-
         try {
             await login({ identifier: 'guest', password: 'password123' });
             navigate('/');
         } catch (error) {
-            setError(error.response?.data?.error || 'Guest login failed');
+            toast.error(error.response?.data?.error || 'Guest login failed', { style: { background: 'black', color: '#fff', borderColor: '#2f3336', borderWidth: '1px', borderStyle: 'solid' } });
         }
     };
 
@@ -38,7 +35,7 @@ function Login() {
                         <text x="50%" y="50%" dominantBaseline="middle" textAnchor="middle" fill="#1d9bf0" fontSize="24" fontWeight="bold" fontFamily="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif">TC</text>
                     </svg>
                 </div>
-                <h1>Sign in to TC</h1>                {error && <div className="error-message">{error}</div>}
+                <h1>Sign in to TC</h1>
 
                 <form onSubmit={handleSubmit}>
                     <input
