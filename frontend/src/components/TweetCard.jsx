@@ -80,8 +80,7 @@ function TweetCard({ tweet, isDetail = false, likedByCurrentUser = false }) {
                     )}
                     <div className="tweet-header">
                         <div className="tweet-author" onClick={handleProfileClick}>
-                            <span className="author-name">{tweet.author.username}</span>
-                            <span className="author-handle">@{tweet.author.username}</span>
+                            <span className="author-name">@{tweet.author.username}</span>
                             <span className="tweet-time">· {timeAgo}</span>
                         </div>
                         {currentUser?.id === tweet.author.id && (
