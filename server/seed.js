@@ -36,8 +36,7 @@ export async function main() {
             passwordHash: bcrypt.hashSync('password123', 10),
             profile: {
                 create: {
-                    bio: 'Guest user account - feel free to explore!',
-                    avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=guest'
+                    bio: 'Guest user account - feel free to explore!'
                 }
             }
         }
@@ -53,8 +52,7 @@ export async function main() {
                 passwordHash: bcrypt.hashSync('password123', 10),
                 profile: {
                     create: {
-                        bio: bios[i],
-                        avatarUrl: `https://api.dicebear.com/7.x/avataaars/svg?seed=${usernames[i]}`
+                        bio: bios[i]
                     }
                 }
             }
