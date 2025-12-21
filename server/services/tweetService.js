@@ -237,6 +237,31 @@ export const getUserTweetsPaginated = async (userId, cursor, pageSize = 10, reqU
                         }
                     }
                 },
+                parentTweet: {
+                    include: {
+                        author: {
+                            select: {
+                                id: true,
+                                username: true,
+                                email: true,
+                                profile: {
+                                    select: {
+                                        bio: true,
+                                        avatarUrl: true
+                                    }
+                                }
+                            }
+                        },
+                        images: true,
+                        _count: {
+                            select: { likes: true }
+                        },
+                        likes: reqUserId ? {
+                            where: { userId: reqUserId },
+                            select: { id: true }
+                        } : false
+                    }
+                },
                 _count: {
                     select: { likes: true }
                 },
@@ -249,9 +274,16 @@ export const getUserTweetsPaginated = async (userId, cursor, pageSize = 10, reqU
 
         return tweets.map(tweet => {
             const userLiked = reqUserId && tweet.likes?.length > 0;
+            const parentUserLiked = reqUserId && tweet.parentTweet?.likes?.length > 0;
+
             return {
                 ...tweet,
                 userLiked,
+                parentTweet: tweet.parentTweet ? {
+                    ...tweet.parentTweet,
+                    userLiked: parentUserLiked,
+                    likes: undefined
+                } : null,
                 likes: undefined
             };
         });
