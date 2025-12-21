@@ -13,7 +13,7 @@ export const AuthProvider = ({ children }) => {
     });
 
     if (isLoading) {
-        return <div className="loading-screen">Loading...</div>;
+        return <div className="loading-screen">Loading... If taking too long, usually due to server waking up from sleep.</div>;
     }
 
     const user = isError ? null : data;
