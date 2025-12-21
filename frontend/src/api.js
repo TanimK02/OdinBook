@@ -1,108 +1,84 @@
+import axios from 'axios';
+
 export const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
+
+const axiosConfig = {
+    withCredentials: true
+};
 
 // User APIs
 export const userAPI = {
     register: async (username, email, password) => {
-        const response = await fetch(`${API_URL}/api/users/register`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
-            body: JSON.stringify({ username, email, password })
-        });
-        return await response.json();
+        const response = await axios.post(`${API_URL}/api/users/register`,
+            { username, email, password },
+            axiosConfig
+        );
+        return response.data;
     },
 
     login: async (identifier, password) => {
-        const response = await fetch(`${API_URL}/api/users/login`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
-            body: JSON.stringify({ identifier, password })
-        });
-        return await response.json();
+        const response = await axios.post(`${API_URL}/api/users/login`,
+            { identifier, password },
+            axiosConfig
+        );
+        return response.data;
     },
 
     logout: async () => {
-        const response = await fetch(`${API_URL}/api/users/logout`, {
-            method: 'POST',
-            credentials: 'include'
-        });
-        return await response.json();
+        const response = await axios.post(`${API_URL}/api/users/logout`, {}, axiosConfig);
+        return response.data;
     },
 
     getUserInfo: async () => {
-        const response = await fetch(`${API_URL}/api/users/userinfo`, {
-            credentials: 'include'
-        });
-        const data = await response.json();
-        return data.user;
+        const response = await axios.get(`${API_URL}/api/users/userinfo`, axiosConfig);
+        return response.data.user;
     },
 
     updateProfile: async (bio, avatarFile) => {
         const formData = new FormData();
         formData.append('bio', bio);
         if (avatarFile) formData.append('avatar', avatarFile);
-        const response = await fetch(`${API_URL}/api/users/profile`, {
-            method: 'POST',
-            credentials: 'include',
-            body: formData
-        });
-        const data = await response.json();
-        return data.profile;
+        const response = await axios.post(`${API_URL}/api/users/profile`, formData, axiosConfig);
+        return response.data.profile;
     },
 
     getProfile: async () => {
-        const response = await fetch(`${API_URL}/api/users/profile`, {
-            credentials: 'include'
-        });
-        const data = await response.json();
-        return data.profile;
+        const response = await axios.get(`${API_URL}/api/users/profile`, axiosConfig);
+        return response.data.profile;
     },
 
     changePassword: async (oldPassword, newPassword) => {
-        const response = await fetch(`${API_URL}/api/users/change-password`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
-            body: JSON.stringify({ oldPassword, newPassword })
-        });
-        return await response.json();
+        const response = await axios.put(`${API_URL}/api/users/change-password`,
+            { oldPassword, newPassword },
+            axiosConfig
+        );
+        return response.data;
     },
 
     updateEmail: async (newEmail) => {
-        const response = await fetch(`${API_URL}/api/users/update-email`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
-            body: JSON.stringify({ newEmail })
-        });
-        return await response.json();
+        const response = await axios.put(`${API_URL}/api/users/update-email`,
+            { newEmail },
+            axiosConfig
+        );
+        return response.data;
     },
 
     updateUsername: async (newUsername) => {
-        const response = await fetch(`${API_URL}/api/users/update-username`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
-            body: JSON.stringify({ newUsername })
-        });
-        return await response.json();
+        const response = await axios.put(`${API_URL}/api/users/update-username`,
+            { newUsername },
+            axiosConfig
+        );
+        return response.data;
     },
 
     deleteAccount: async () => {
-        const response = await fetch(`${API_URL}/api/users/delete-account`, {
-            method: 'DELETE',
-            credentials: 'include'
-        });
-        return await response.json();
+        const response = await axios.delete(`${API_URL}/api/users/delete-account`, axiosConfig);
+        return response.data;
     },
 
     getOtherUserInfo: async (username) => {
-        const response = await fetch(`${API_URL}/api/users/user/${username}`, {
-            credentials: 'include'
-        });
-        const data = await response.json();
-        return data.user;
+        const response = await axios.get(`${API_URL}/api/users/user/${username}`, axiosConfig);
+        return response.data.user;
     }
 };
 
@@ -113,88 +89,68 @@ export const tweetAPI = {
         formData.append('content', content);
         if (parentTweetId) formData.append('parentTweetId', parentTweetId);
         images.forEach(img => formData.append('tweetPics', img));
-        const response = await fetch(`${API_URL}/api/tweets/tweet`, {
-            method: 'POST',
-            credentials: 'include',
-            body: formData
-        });
-        const data = await response.json();
-        return data.tweet;
+        const response = await axios.post(`${API_URL}/api/tweets/tweet`, formData, axiosConfig);
+        return response.data.tweet;
     },
 
     getTweets: async (cursor = null) => {
-        const url = new URL(`${API_URL}/api/tweets/tweets`);
-        if (cursor) url.searchParams.append('cursor', cursor);
-        const response = await fetch(url, { credentials: 'include' });
-        const data = await response.json();
-        return { tweets: data.tweets, nextCursor: data.nextCursor };
+        const response = await axios.get(`${API_URL}/api/tweets/tweets`, {
+            ...axiosConfig,
+            params: cursor ? { cursor } : {}
+        });
+        return { tweets: response.data.tweets, nextCursor: response.data.nextCursor };
     },
 
     getTweet: async (tweetId) => {
-        const response = await fetch(`${API_URL}/api/tweets/tweet/${tweetId}`, {
-            credentials: 'include'
-        });
-        const data = await response.json();
-        return data.tweet;
+        const response = await axios.get(`${API_URL}/api/tweets/tweet/${tweetId}`, axiosConfig);
+        return response.data.tweet;
     },
 
     getUserTweets: async (userId, cursor = null) => {
-        const url = new URL(`${API_URL}/api/tweets/tweets/user/${userId}`);
-        if (cursor) url.searchParams.append('cursor', cursor);
-        const response = await fetch(url, { credentials: 'include' });
-        const data = await response.json();
-        return { tweets: data.tweets, nextCursor: data.nextCursor };
+        const response = await axios.get(`${API_URL}/api/tweets/tweets/user/${userId}`, {
+            ...axiosConfig,
+            params: cursor ? { cursor } : {}
+        });
+        return { tweets: response.data.tweets, nextCursor: response.data.nextCursor };
     },
 
     getReplies: async (tweetId, cursor = null) => {
-        const url = new URL(`${API_URL}/api/tweets/tweets/replies/${tweetId}`);
-        if (cursor) url.searchParams.append('cursor', cursor);
-        const response = await fetch(url, { credentials: 'include' });
-        const data = await response.json();
-        return { replies: data.replies, nextCursor: data.nextCursor };
+        const response = await axios.get(`${API_URL}/api/tweets/tweets/replies/${tweetId}`, {
+            ...axiosConfig,
+            params: cursor ? { cursor } : {}
+        });
+        return { replies: response.data.replies, nextCursor: response.data.nextCursor };
     },
 
     updateTweet: async (tweetId, content, newImages = []) => {
         const formData = new FormData();
         formData.append('content', content);
         newImages.forEach(img => formData.append('tweetPics', img));
-        const response = await fetch(`${API_URL}/api/tweets/tweet/${tweetId}`, {
-            method: 'PUT',
-            credentials: 'include',
-            body: formData
-        });
-        const data = await response.json();
-        return data.tweet;
+        const response = await axios.put(`${API_URL}/api/tweets/tweet/${tweetId}`, formData, axiosConfig);
+        return response.data.tweet;
     },
 
     deleteTweet: async (tweetId) => {
-        const response = await fetch(`${API_URL}/api/tweets/tweet/${tweetId}`, {
-            method: 'DELETE',
-            credentials: 'include'
-        });
-        return await response.json();
+        const response = await axios.delete(`${API_URL}/api/tweets/tweet/${tweetId}`, axiosConfig);
+        return response.data;
     }
 };
 
 // Interaction APIs
 export const interactionAPI = {
     toggleLike: async (tweetId) => {
-        const response = await fetch(`${API_URL}/api/interactions/like`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
-            body: JSON.stringify({ tweetId })
-        });
-        return await response.json();
+        const response = await axios.post(`${API_URL}/api/interactions/like`,
+            { tweetId },
+            axiosConfig
+        );
+        return response.data;
     },
 
     toggleRetweet: async (tweetId) => {
-        const response = await fetch(`${API_URL}/api/interactions/retweet`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
-            body: JSON.stringify({ tweetId })
-        });
-        return await response.json();
+        const response = await axios.post(`${API_URL}/api/interactions/retweet`,
+            { tweetId },
+            axiosConfig
+        );
+        return response.data;
     }
 };
