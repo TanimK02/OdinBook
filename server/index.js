@@ -16,11 +16,27 @@ const pgPool = new Pool({
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(cors({
-    origin: ['http://localhost:5173', 'https://odin-book-pi.vercel.app'],
-    credentials: true
-}));
 app.set('trust proxy', 1);
+
+app.use(cors({
+    origin: (origin, callback) => {
+        const allowedOrigins = [
+            'http://localhost:5173',
+            'https://odin-book-pi.vercel.app'
+        ];
+        // Allow requests with no origin (like mobile apps or curl)
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    exposedHeaders: ['Set-Cookie']
+}));
+
 app.use(express.json());
 
 app.use(session({
@@ -32,11 +48,13 @@ app.use(session({
     secret: process.env.SESSION_SECRET || 'yoursecret',
     resave: false,
     saveUninitialized: false,
+    proxy: true,
     cookie: {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-        maxAge: 24 * 60 * 60 * 1000
+        maxAge: 24 * 60 * 60 * 1000,
+        domain: process.env.NODE_ENV === 'production' ? undefined : 'localhost'
     }
 }));
 
