@@ -3,6 +3,7 @@ import { FaImage, FaTimes } from 'react-icons/fa';
 import './ComposeTweet.css';
 import { useCreateTweet } from '../hooks/useTweetMutations';
 import toast from 'react-hot-toast';
+import { PhotoProvider, PhotoView } from 'react-photo-view';
 
 function ComposeTweet({ user, onTweetCreated, parentTweetId = null, placeholder = "What's happening?" }) {
     const [content, setContent] = useState('');
@@ -86,19 +87,26 @@ function ComposeTweet({ user, onTweetCreated, parentTweetId = null, placeholder 
                 />
 
                 {previews.length > 0 && (
-                    <div className={`image-previews grid-${Math.min(previews.length, 4)}`}>
-                        {previews.map((preview, index) => (
-                            <div key={index} className="image-preview">
-                                <img src={preview} alt="" />
-                                <button
-                                    type="button"
-                                    className="remove-image"
-                                    onClick={() => removeImage(index)}
-                                >
-                                    <FaTimes />
-                                </button>
-                            </div>
-                        ))}
+                    <div className="image-previews">
+                        <PhotoProvider>
+                            {previews.map((preview, index) => (
+                                <PhotoView key={index} src={preview}>
+                                    <div className="image-preview">
+                                        <img src={preview} alt={`Preview ${index + 1}`} />
+                                        <button
+                                            type="button"
+                                            className="remove-image-btn"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                removeImage(index);
+                                            }}
+                                        >
+                                            <FaTimes size={12} />
+                                        </button>
+                                    </div>
+                                </PhotoView>
+                            ))}
+                        </PhotoProvider>
                     </div>
                 )}
 

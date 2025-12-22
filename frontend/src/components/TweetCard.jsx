@@ -6,6 +6,7 @@ import './TweetCard.css';
 import { useAuth } from '../AuthProvider.jsx';
 import { useToggleLike, useDeleteTweet } from '../hooks/useTweetMutations.js';
 import toast from 'react-hot-toast';
+import { PhotoProvider, PhotoView } from 'react-photo-view';
 function TweetCard({ tweet, isDetail = false, likedByCurrentUser = false }) {
     const { user: currentUser } = useAuth();
     const [isLiked, setIsLiked] = useState(likedByCurrentUser);
@@ -103,11 +104,42 @@ function TweetCard({ tweet, isDetail = false, likedByCurrentUser = false }) {
                     <div className="tweet-text">{tweet.content}</div>
 
                     {tweet.images && tweet.images.length > 0 && (
-                        <div className={`tweet-images grid-${Math.min(tweet.images.length, 4)}`}>
-                            {tweet.images.map((image, idx) => (
-                                <img key={idx} src={image.url} alt="" />
-                            ))}
-                        </div>
+                        <PhotoProvider
+                            speed={() => 300}
+                            easing={(type) => (type === 2 ? 'cubic-bezier(0.36, 0, 0.66, -0.56)' : 'cubic-bezier(0.34, 1.56, 0.64, 1)')}
+                            overlayRender={(props) => {
+                                const { index, images } = props;
+                                return (
+                                    <div className="photo-viewer-indicators">
+                                        {tweet.images.map((_, idx) => (
+                                            <span
+                                                key={idx}
+                                                className={`photo-viewer-dot ${idx === index ? 'active' : ''}`}
+                                            ></span>
+                                        ))}
+                                    </div>
+                                );
+                            }}
+                        >
+                            <div className="tweet-images" onClick={(e) => e.stopPropagation()}>
+                                {tweet.images.map((image, idx) => (
+                                    <PhotoView key={idx} src={image.url}>
+                                        <img
+                                            src={image.url}
+                                            alt=""
+                                            style={{ display: idx === 0 ? 'block' : 'none' }}
+                                        />
+                                    </PhotoView>
+                                ))}
+                                {tweet.images.length > 1 && (
+                                    <div className="image-indicators">
+                                        {tweet.images.map((_, idx) => (
+                                            <span key={idx} className="image-dot"></span>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        </PhotoProvider>
                     )}
 
                     <div className="tweet-actions">

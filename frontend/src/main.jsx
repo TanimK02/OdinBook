@@ -5,6 +5,7 @@ import App from './App.jsx'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { AuthProvider } from './AuthProvider.jsx'
 import { Toaster } from 'react-hot-toast'
+import 'react-photo-view/dist/react-photo-view.css';
 const queryClient = new QueryClient()
 createRoot(document.getElementById('root')).render(
   <StrictMode>

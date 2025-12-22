@@ -15,7 +15,6 @@ function Home() {
         isFetchingNextPage,
         isLoading,
         isError,
-        error,
     } = useInfiniteQuery({
         queryKey: ['tweets'],
         queryFn: ({ pageParam = null }) => tweetAPI.getTweets(pageParam),
@@ -50,7 +49,6 @@ function Home() {
             <ComposeTweet user={user} />
 
             <div className="tweets-list">
-                {isError && <div className="error-message">Failed to load tweets. Please try again.</div>}
                 {tweets.map((tweet, index) => {
                     if (index === tweets.length - 1) {
                         return (

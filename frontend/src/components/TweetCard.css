@@ -149,53 +149,78 @@
 
 .tweet-images {
     margin-bottom: 12px;
-    display: grid;
-    gap: 2px;
-    border-radius: 16px;
-    overflow: hidden;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
     width: 100%;
     max-width: 400px;
-}
-
-.tweet-images.grid-1 {
-    grid-template-columns: 1fr;
-}
-
-.tweet-images.grid-2 {
-    grid-template-columns: 1fr 1fr;
-}
-
-.tweet-images.grid-3 {
-    grid-template-columns: 1fr 1fr;
-    grid-auto-rows: minmax(0, 1fr);
-}
-
-.tweet-images.grid-3 img:first-child {
-    grid-row: 1 / 3;
-}
-
-.tweet-images.grid-4 {
-    grid-template-columns: 1fr 1fr;
-    grid-auto-rows: minmax(0, 1fr);
+    position: relative;
 }
 
 .tweet-images img {
     width: 100%;
-    height: 100%;
+    height: 250px;
     object-fit: contain;
     display: block;
-    max-height: 300px;
+    border-radius: 12px;
+    cursor: pointer;
+    flex: 1 1 calc(50% - 4px);
+    min-width: 150px;
+    max-width: 100%;
+    transition: background-color 0.2s;
+}
+
+.tweet-images img:hover {
+    background-color: #2f3336;
+}
+
+.image-indicators {
+    position: absolute;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 6px;
+    padding: 4px 8px;
+    background-color: rgba(0, 0, 0, 0.6);
+    border-radius: 12px;
+    pointer-events: none;
+}
+
+.image-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.6);
+}
+
+.image-dot:first-child {
+    background-color: rgba(255, 255, 255, 1);
+}
+
+.photo-viewer-indicators {
+    position: fixed;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    padding: 6px 12px;
+    background-color: rgba(0, 0, 0, 0.7);
     border-radius: 16px;
+    z-index: 99999;
 }
 
-.tweet-images.grid-1 img {
-    max-height: 400px;
+.photo-viewer-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.4);
+    transition: background-color 0.3s;
 }
 
-.tweet-images.grid-2 img,
-.tweet-images.grid-3 img,
-.tweet-images.grid-4 img {
-    max-height: 200px;
+.photo-viewer-dot.active {
+    background-color: rgba(255, 255, 255, 1);
 }
 
 .tweet-actions {
