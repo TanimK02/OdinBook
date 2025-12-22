@@ -27,13 +27,23 @@ function TweetCard({ tweet, isDetail = false, likedByCurrentUser = false }) {
     const handleDelete = async (e) => {
         e.stopPropagation();
         if (!window.confirm('Delete this post?')) return;
-
-        try {
-            await deleteTweetMutation.mutateAsync(tweet.id);
-        } catch (error) {
-            console.error('Error deleting tweet:', error);
-            toast.error(error.response?.data?.error || 'Failed to delete post', { style: { background: 'black', color: '#fff', borderColor: '#2f3336', borderWidth: '1px', borderStyle: 'solid' } });
-        }
+        toast.promise(
+            deleteTweetMutation.mutateAsync(tweet.id),
+            {
+                loading: 'Deleting tweet...',
+                success: 'Tweet deleted',
+                error: () => { console.log('Failed to delete tweet'); return 'Failed to delete tweet'; }
+            },
+            {
+                style: {
+                    background: 'black',
+                    color: '#fff',
+                    borderColor: '#2f3336',
+                    borderWidth: '1px',
+                    borderStyle: 'solid',
+                },
+            }
+        );
     };
 
     const handleClick = () => {
