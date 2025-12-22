@@ -80,7 +80,7 @@ function Profile() {
             </div>
 
             <div className="profile-info">
-                <div className="profile-avatar">
+                <div className="profile-avatar" style={{ background: `${profile.profile?.avatarUrl ? "black" : "linear-gradient(135deg, #1d9bf0, #0c7abf)"}` }}>
                     {profile.profile?.avatarUrl ? (
                         <img src={profile.profile.avatarUrl} alt={profile.username} />
                     ) : (
