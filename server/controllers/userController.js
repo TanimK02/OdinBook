@@ -64,7 +64,7 @@ export const postProfile = async (req, res) => {
         let avatarUrl = null;
 
         if (avatarFile) {
-            avatarUrl = await uploadProfilePic(avatarFile);
+            avatarUrl = await uploadProfilePic(avatarFile, req.user.id);
         }
 
         const existingProfile = await getProfile(req.user.id);

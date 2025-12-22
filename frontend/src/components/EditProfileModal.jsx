@@ -96,12 +96,13 @@ function EditProfileModal({ user, onClose, onUpdate }) {
 
                 <form onSubmit={handleSubmit}>
                     <div className="avatar-upload-section">
-                        <div className="avatar-preview" onClick={() => fileInputRef.current?.click()}>
-                            {avatarPreview ? (
-                                <img src={avatarPreview} alt="Avatar" />
+                        <div className="avatar-preview" onClick={() => fileInputRef.current?.click()} style={{ background: `${user?.profile?.avatarUrl || avatarPreview ? "black" : "linear-gradient(135deg, #1d9bf0, #0c7abf);"}` }} >
+                            {avatarPreview || user?.profile?.avatarUrl ? (
+                                <img src={avatarPreview || user?.profile?.avatarUrl} alt="Avatar" />
                             ) : (
-                                <div className="avatar-placeholder">
-                                    {user?.username?.[0]?.toUpperCase() || 'U'}
+                                <div className="avatar-placeholder" style={{ background: `${user?.profile?.avatarUrl ? "black" : "linear-gradient(135deg, #1d9bf0, #0c7abf);"}` }}>
+                                    {user.username[0].toUpperCase()}
+
                                 </div>
                             )}
                             <div className="avatar-overlay">

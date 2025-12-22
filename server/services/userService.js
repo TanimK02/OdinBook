@@ -89,9 +89,9 @@ export const getUserInfo = async (id) => {
     }
 }
 
-export const uploadProfilePic = async (avatarFile) => {
+export const uploadProfilePic = async (avatarFile, userId) => {
     try {
-        const filePath = `avatars/${req.user.id}_${Date.now()}_${avatarFile.originalname}`;
+        const filePath = `avatars/${userId}_${Date.now()}_${avatarFile.originalname}`;
         await supabase
             .storage
             .from('tweet-images')

@@ -68,7 +68,7 @@ function ComposeTweet({ user, onTweetCreated, parentTweetId = null, placeholder 
 
     return (
         <div className="compose-tweet">
-            <div className="compose-avatar">
+            <div className="compose-avatar" style={{ background: `${user.profile.avatarUrl ? "black" : "linear-gradient(135deg, #1d9bf0, #0c7abf)"}` }}>
                 {user?.profile?.avatarUrl ? (
                     <img src={user.profile.avatarUrl} alt={user.username} />
                 ) : (

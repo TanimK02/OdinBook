@@ -61,7 +61,7 @@ function Sidebar() {
                     </div>
 
                     <div className="user-info" onClick={() => setShowEditModal(true)}>
-                        <div className="user-avatar">
+                        <div className="user-avatar" style={{ background: `${user.profile.avatarUrl ? "black" : "linear-gradient(135deg, #1d9bf0, #0c7abf)"}` }}>
                             {user?.profile?.avatarUrl ? (
                                 <img src={user.profile.avatarUrl} alt={user.username} />
                             ) : (

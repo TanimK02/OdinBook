@@ -71,7 +71,7 @@ function TweetCard({ tweet, isDetail = false, likedByCurrentUser = false }) {
                 </div>
             )}
             <div className={`tweet-card ${isDetail ? 'detail' : ''} ${tweet.parentTweet ? 'is-reply' : ''}`} >
-                <div className="tweet-avatar" onClick={handleProfileClick}>
+                <div className="tweet-avatar" style={{ background: `${tweet.author.profile.avatarUrl ? "black" : "linear-gradient(135deg, #1d9bf0, #0c7abf)"}` }} onClick={handleProfileClick}>
                     {tweet.author?.profile?.avatarUrl ? (
                         <img src={tweet.author.profile.avatarUrl} alt={tweet.author.username} />
                     ) : (
