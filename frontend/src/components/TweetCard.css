@@ -149,25 +149,25 @@
 
 .tweet-images {
     margin-bottom: 12px;
-    overflow: hidden;
     display: grid;
-    gap: 5px;
+    gap: 2px;
+    border-radius: 16px;
+    overflow: hidden;
+    width: 100%;
+    max-width: 400px;
 }
 
 .tweet-images.grid-1 {
-    grid-template-columns: min-content;
-    max-height: 300px;
-    ;
+    grid-template-columns: 1fr;
 }
 
 .tweet-images.grid-2 {
-    grid-template-columns: repeat(2, min-content);
-    max-height: 300px;
+    grid-template-columns: 1fr 1fr;
 }
 
 .tweet-images.grid-3 {
-    grid-template-columns: repeat(2, min-content);
-    max-height: 300px;
+    grid-template-columns: 1fr 1fr;
+    grid-auto-rows: minmax(0, 1fr);
 }
 
 .tweet-images.grid-3 img:first-child {
@@ -175,14 +175,27 @@
 }
 
 .tweet-images.grid-4 {
-    grid-template-columns: repeat(2, min-content);
-    max-height: 300px;
+    grid-template-columns: 1fr 1fr;
+    grid-auto-rows: minmax(0, 1fr);
 }
 
 .tweet-images img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
     max-height: 300px;
-    object-fit: cover;
     border-radius: 16px;
+}
+
+.tweet-images.grid-1 img {
+    max-height: 400px;
+}
+
+.tweet-images.grid-2 img,
+.tweet-images.grid-3 img,
+.tweet-images.grid-4 img {
+    max-height: 200px;
 }
 
 .tweet-actions {
