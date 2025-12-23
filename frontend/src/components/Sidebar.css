@@ -253,7 +253,7 @@
         flex: 1;
         justify-content: space-around;
         gap: 0;
-        width: 50%
+        width: 60%
     }
 
     .nav-item {
@@ -269,7 +269,7 @@
 
     .bottomSettings {
         display: flex;
-        width: 50%;
+        width: 40%;
     }
 
     .settings-btn,

@@ -1,18 +1,22 @@
 import prisma from '../config/prisma.js';
 
-export const searchUsersByUsername = async (query, limit = 10) => {
+export const searchUsersByUsername = async (query, limit = 10, cursor = null) => {
     try {
-        const users = await prisma.user.findMany({
-            where: {
-                username: {
-                    contains: query,
-                    mode: "insensitive",
-                },
+        const whereClause = {
+            username: {
+                contains: query,
+                mode: "insensitive",
             },
+            ...(cursor && { createdAt: { lt: new Date(cursor) } })
+        };
+
+        const users = await prisma.user.findMany({
+            where: whereClause,
             select: {
                 id: true,
                 username: true,
                 email: true,
+                createdAt: true,
                 profile: {
                     select: {
                         bio: true,
@@ -20,7 +24,10 @@ export const searchUsersByUsername = async (query, limit = 10) => {
                     },
                 },
             },
-            take: limit,
+            take: limit + 1,
+            orderBy: {
+                createdAt: "desc",
+            },
         });
         return users;
     } catch (error) {
@@ -28,15 +35,18 @@ export const searchUsersByUsername = async (query, limit = 10) => {
     }
 };
 
-export const searchTweetsByContent = async (query, limit = 10, reqUserId) => {
+export const searchTweetsByContent = async (query, limit = 10, reqUserId, cursor = null) => {
     try {
-        const tweets = await prisma.tweet.findMany({
-            where: {
-                content: {
-                    contains: query,
-                    mode: "insensitive",
-                },
+        const whereClause = {
+            content: {
+                contains: query,
+                mode: "insensitive",
             },
+            ...(cursor && { createdAt: { lt: new Date(cursor) } })
+        };
+
+        const tweets = await prisma.tweet.findMany({
+            where: whereClause,
             include: {
                 images: true,
                 author: {
@@ -85,7 +95,7 @@ export const searchTweetsByContent = async (query, limit = 10, reqUserId) => {
                     select: { id: true }
                 } : false
             },
-            take: limit,
+            take: limit + 1,
             orderBy: {
                 createdAt: "desc",
             },

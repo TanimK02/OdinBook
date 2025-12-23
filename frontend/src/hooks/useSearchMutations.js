@@ -4,16 +4,16 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 export const useSearchUsers = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: (query) => searchAPI.searchUsers(query),
-        onSuccess: (users) => {
-            queryClient.setQueryData({ queryKey: ["searchUsers"] }, users);
+        mutationFn: ({ query, cursor }) => searchAPI.searchUsers(query, cursor),
+        onSuccess: (data) => {
+            queryClient.setQueryData({ queryKey: ["searchUsers"] }, data);
         },
     });
 };
 
 export const useSearchTweets = () => {
     return useMutation({
-        mutationFn: (query) => searchAPI.searchTweets(query),
+        mutationFn: ({ query, cursor }) => searchAPI.searchTweets(query, cursor),
     });
 };
 

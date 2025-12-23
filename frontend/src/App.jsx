@@ -7,7 +7,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import './App.css';
 import { useAuth } from './AuthProvider.jsx';
-
+import Search from './pages/Search.jsx';
 function App() {
   const { user } = useAuth();
   return (
@@ -23,6 +23,8 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/profile/:userId" element={<Profile />} />
           <Route path="/tweet/:tweetId" element={<TweetDetail />} />
+          <Route path="/search" element={<Search />} />
+          <Route path="/search/:query" element={<Search />} />
         </Route>
       </Routes>
     </Router>

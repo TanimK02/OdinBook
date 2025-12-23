@@ -22,9 +22,12 @@ function RightSidebar() {
 
     useEffect(() => {
         if (debouncedQuery) {
-            mutate(debouncedQuery);
+            mutate({ query: debouncedQuery });
         }
     }, [debouncedQuery, mutate]);
+
+    const users = data?.users || [];
+
     return (
         <div className="right-sidebar">
             <div className='searchBarContainer'>
@@ -46,10 +49,10 @@ function RightSidebar() {
                     <div className='searchDropdown'>
                         {isLoading && <div className='loading'>Searching...</div>}
 
-                        {!isLoading && data && data.length > 0 && (
+                        {!isLoading && users && users.length > 0 && (
                             <>
                                 <div className='searchResults'>
-                                    {data.map(user => (
+                                    {users.map(user => (
                                         <div key={user.id} className='searchResultItem' onMouseDown={() => {
                                             navigate(`/profile/${user.id}`);
                                             setQuery("");
@@ -70,14 +73,19 @@ function RightSidebar() {
                                         </div>
                                     ))}
                                 </div>
-                                <div className='searchTweetPrompt'>
+                                <div onMouseDown={() => {
+                                    navigate(`/search/${debouncedQuery}`)
+                                    setQuery("");
+                                    inputRef.current.blur();
+                                }}
+                                    className='searchTweetPrompt'>
                                     <div className='promptIcon'><IoIosSearch /></div>
                                     <span ref={tweetSearchRef}>Search tweets by "{query}"</span>
                                 </div>
                             </>
                         )}
 
-                        {!isLoading && debouncedQuery && (!data || data.length === 0) && (
+                        {!isLoading && debouncedQuery && (!users || users.length === 0) && (
                             <div className='noResults'>No users found for "{query}"</div>
                         )}
                     </div>

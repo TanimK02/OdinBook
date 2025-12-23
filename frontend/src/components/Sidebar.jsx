@@ -8,6 +8,7 @@ import { useAuth } from '../AuthProvider.jsx';
 import { useLogout } from '../hooks/useUserMutations.js';
 import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
+
 function Sidebar() {
     const navigate = useNavigate();
     const { user } = useAuth();
@@ -41,6 +42,12 @@ function Sidebar() {
                         <Link to={`/profile/${user?.id}`} className={`nav-item ${location.pathname.includes('/profile') ? 'active' : ''}`}>
                             <FaUser size={24} />
                             <span>Profile</span>
+                        </Link>
+                        <Link to="/search/" className={`nav-item ${location.pathname.includes('/search') ? 'active' : ''}`}>
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M15.7955 15.8111L21 21M18 10.5C18 14.6421 14.6421 18 10.5 18C6.35786 18 3 14.6421 3 10.5C3 6.35786 6.35786 3 10.5 3C14.6421 3 18 6.35786 18 10.5Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            <span>Search</span>
                         </Link>
                     </nav>
                     <div className='bottomSettings'>

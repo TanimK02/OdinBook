@@ -156,19 +156,19 @@ export const interactionAPI = {
 };
 
 export const searchAPI = {
-    searchUsers: async (query) => {
+    searchUsers: async (query, cursor) => {
         const response = await axios.get(`${API_URL}/api/search/users`, {
             ...axiosConfig,
-            params: { query }
+            params: { query, cursor }
         });
-        return response.data.users;
+        return { users: response.data.users, nextCursor: response.data.nextCursor };
     },
-    searchTweets: async (query) => {
+    searchTweets: async (query, cursor) => {
         const response = await axios.get(`${API_URL}/api/search/tweets`, {
             ...axiosConfig,
-            params: { query }
+            params: { query, cursor }
         });
-        return response.data.tweets;
+        return { tweets: response.data.tweets, nextCursor: response.data.nextCursor };
     },
     searchTweetsAndUsers: async (query) => {
         const response = await axios.get(`${API_URL}/api/search/all`, {
