@@ -154,3 +154,30 @@ export const interactionAPI = {
         return response.data;
     }
 };
+
+export const searchAPI = {
+    searchUsers: async (query) => {
+        const response = await axios.get(`${API_URL}/api/search/users`, {
+            ...axiosConfig,
+            params: { query }
+        });
+        return response.data.users;
+    },
+    searchTweets: async (query) => {
+        const response = await axios.get(`${API_URL}/api/search/tweets`, {
+            ...axiosConfig,
+            params: { query }
+        });
+        return response.data.tweets;
+    },
+    searchTweetsAndUsers: async (query) => {
+        const response = await axios.get(`${API_URL}/api/search/all`, {
+            ...axiosConfig,
+            params: { query }
+        });
+        return {
+            users: response.data.users,
+            tweets: response.data.tweets
+        };
+    }
+}

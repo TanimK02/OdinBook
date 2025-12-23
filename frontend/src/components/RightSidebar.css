@@ -7,13 +7,18 @@
     overflow-y: auto;
 }
 
-.search-box {
-    margin-bottom: 16px;
+.searchBarContainer {
+    position: relative;
 }
 
-.search-box input {
+.searchBar {
+    position: relative;
+    margin-bottom: 4px;
+}
+
+.searchBar input {
     width: 100%;
-    padding: 12px 16px;
+    padding: 12px 16px 12px 48px;
     background-color: #202327;
     border: none;
     border-radius: 9999px;
@@ -22,9 +27,140 @@
     outline: none;
 }
 
-.search-box input:focus {
+.searchBar input:focus {
     background-color: #000;
     border: 1px solid #1d9bf0;
+}
+
+.searchBar input.fullRadius {
+    border-radius: 9999px;
+}
+
+.searchBar input:focus:not(.fullRadius) {
+    border-radius: 20px 20px 0 0;
+}
+
+.searchBar input::placeholder {
+    color: #71767b;
+}
+
+.addRadius {
+    border-radius: 20px;
+}
+
+.searchIcon {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #71767b;
+    font-size: 20px;
+    pointer-events: none;
+}
+
+.searchBar input:focus~.searchIcon {
+    color: #1d9bf0;
+}
+
+.searchDropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: #000;
+    border: 1px solid #1d9bf0;
+    border-top: none;
+    border-radius: 0 0 20px 20px;
+    overflow: hidden;
+    max-height: 400px;
+    overflow-y: auto;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    z-index: 10;
+}
+
+.loading {
+    padding: 16px;
+    text-align: center;
+    color: #71767b;
+    font-size: 14px;
+}
+
+.searchResults {
+    max-height: 320px;
+    overflow-y: auto;
+}
+
+.searchResultItem {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    gap: 12px;
+}
+
+.searchResultItem:hover {
+    background-color: #16181c;
+}
+
+.searchResultItem .avatarWrapper {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.searchResultItem .avatar {
+    max-height: 40px;
+    object-fit: contain;
+}
+
+.searchResultItem .userInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.searchResultItem .displayName {
+    font-size: 15px;
+    font-weight: 700;
+    color: #e7e9ea;
+}
+
+.searchResultItem .username {
+    font-size: 14px;
+    color: #71767b;
+}
+
+.searchTweetPrompt {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    gap: 12px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    border-top: 1px solid #2f3336;
+    color: #1d9bf0;
+    font-size: 14px;
+}
+
+.searchTweetPrompt:hover {
+    background-color: #16181c;
+}
+
+.searchTweetPrompt .promptIcon {
+    font-size: 18px;
+    color: #1d9bf0;
+}
+
+.noResults {
+    padding: 16px;
+    text-align: center;
+    color: #71767b;
+    font-size: 14px;
 }
 
 .trends-widget {
@@ -64,6 +200,19 @@
 .trend-count {
     font-size: 13px;
     color: #71767b;
+}
+
+.avatar.placeholder {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #1d9bf0;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 700;
 }
 
 @media (max-width: 1024px) {
