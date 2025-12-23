@@ -1,6 +1,7 @@
-import { createContext, useContext, useEffect } from "react";
+import { createContext, useContext, useState, CSSProperties } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { userAPI } from "./api.js";
+import { ClockLoader } from "react-spinners";
 const AuthContext = createContext({ user: null });
 
 export const AuthProvider = ({ children }) => {
@@ -13,7 +14,10 @@ export const AuthProvider = ({ children }) => {
     });
 
     if (isLoading) {
-        return <div className="loading-screen">Loading... If taking too long, usually due to server waking up from sleep.</div>;
+        return <div className="loading-screen">
+            <ClockLoader color="#1d9bf0" size={150} />
+            <div>Server is waking up... This may take a moment.</div>
+        </div>;
     }
     const user = isError ? null : data;
 
