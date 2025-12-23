@@ -5,6 +5,7 @@ import passport from './config/passport.js';
 import { likeRetweetRouter } from './routes/likeRetweetRouter.js';
 import { userRouter } from './routes/userRoute.js';
 import { tweetRouter } from './routes/tweetRoute.js';
+import { searchRouter } from './routes/searchRoute.js';
 import session from 'express-session';
 import pgSession from 'connect-pg-simple';
 import { Pool } from 'pg';
@@ -66,6 +67,7 @@ app.use(passport.session());
 app.use('/api/users', userRouter);
 app.use('/api/tweets', tweetRouter);
 app.use('/api/interactions', likeRetweetRouter);
+app.use('/api/search', searchRouter);
 
 // export default app;
 
