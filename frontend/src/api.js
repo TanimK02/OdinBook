@@ -79,6 +79,14 @@ export const userAPI = {
     getOtherUserInfo: async (username) => {
         const response = await axios.get(`${API_URL}/api/users/user/${username}`, axiosConfig);
         return response.data.user;
+    },
+
+    getRandomUsers: async (limit = 6) => {
+        const response = await axios.get(`${API_URL}/api/users/random`, {
+            ...axiosConfig,
+            params: { limit }
+        });
+        return response.data.users;
     }
 };
 

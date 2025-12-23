@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { FaTimes } from 'react-icons/fa';
 import './EditProfileModal.css';
-import { useUpdateUsername, useUpdateEmail, useChangePassword } from '../hooks/useUserMutations';
+import { useUpdateUsername, useUpdateEmail, useChangePassword } from '../../hooks/useUserMutations';
 import toast from 'react-hot-toast';
 
 function AccountSettingsModal({ user, onClose, onUpdate }) {

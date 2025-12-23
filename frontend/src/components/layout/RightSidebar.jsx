@@ -1,16 +1,19 @@
 import './RightSidebar.css';
 import { IoIosSearch } from "react-icons/io";
-import { useSearchUsers } from '../hooks/useSearchMutations';
+import { useSearchUsers } from '../../hooks/useSearchMutations.js';
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import UserBar from '../user/UserBar.jsx';
+
 function RightSidebar() {
     const navigate = useNavigate();
     const [query, setQuery] = useState("");
     const [debouncedQuery, setDebouncedQuery] = useState("");
-    const { mutate, data, isLoading } = useSearchUsers();
+    const { data, isLoading } = useSearchUsers({ query: debouncedQuery });
     const tweetSearchRef = useRef(null);
     const [isFocused, setIsFocused] = useState(false);
     const inputRef = useRef(null);
+
     useEffect(() => {
         const handler = setTimeout(() => {
             setDebouncedQuery(query);
@@ -20,13 +23,7 @@ function RightSidebar() {
         return () => clearTimeout(handler);
     }, [query]);
 
-    useEffect(() => {
-        if (debouncedQuery) {
-            mutate({ query: debouncedQuery });
-        }
-    }, [debouncedQuery, mutate]);
-
-    const users = data?.users || [];
+    const users = data?.pages?.[0]?.users || [];
 
     return (
         <div className="right-sidebar">
@@ -80,7 +77,7 @@ function RightSidebar() {
                                 }}
                                     className='searchTweetPrompt'>
                                     <div className='promptIcon'><IoIosSearch /></div>
-                                    <span ref={tweetSearchRef}>Search tweets by "{query}"</span>
+                                    <span ref={tweetSearchRef}>Search tweets and users by "{query}"</span>
                                 </div>
                             </>
                         )}
@@ -91,6 +88,7 @@ function RightSidebar() {
                     </div>
                 )}
             </div>
+            <UserBar />
         </div>
     );
 }

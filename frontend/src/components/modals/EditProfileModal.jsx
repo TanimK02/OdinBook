@@ -2,8 +2,8 @@ import { useState, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { FaTimes, FaCamera } from 'react-icons/fa';
 import './EditProfileModal.css';
-import { useUpdateProfile } from '../hooks/useUserMutations';
-import { userAPI } from '../api.js';
+import { useUpdateProfile } from '../../hooks/useUserMutations.js';
+import { userAPI } from '../../api.js';
 import toast from 'react-hot-toast';
 
 function EditProfileModal({ user, onClose, onUpdate }) {

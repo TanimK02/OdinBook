@@ -1,6 +1,6 @@
 import { useRef } from 'react';
-import ComposeTweet from '../components/ComposeTweet';
-import TweetCard from '../components/TweetCard';
+import ComposeTweet from '../components/tweet/ComposeTweet';
+import TweetCard from '../components/tweet/TweetCard';
 import './Home.css';
 import { useAuth } from '../AuthProvider.jsx';
 import { useInfiniteQuery } from '@tanstack/react-query';

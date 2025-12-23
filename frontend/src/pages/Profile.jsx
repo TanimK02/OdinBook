@@ -2,7 +2,7 @@ import { useRef, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { tweetAPI, userAPI } from '../api.js';
-import TweetCard from '../components/TweetCard';
+import TweetCard from '../components/tweet/TweetCard';
 import './Profile.css';
 import toast from 'react-hot-toast';
 

@@ -1,19 +1,23 @@
 import { searchAPI } from "../api.js";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useInfiniteQuery } from "@tanstack/react-query";
 
-export const useSearchUsers = () => {
-    const queryClient = useQueryClient();
-    return useMutation({
-        mutationFn: ({ query, cursor }) => searchAPI.searchUsers(query, cursor),
-        onSuccess: (data) => {
-            queryClient.setQueryData({ queryKey: ["searchUsers"] }, data);
-        },
+export const useSearchUsers = ({ query, enabled = true }) => {
+    return useInfiniteQuery({
+        queryKey: ["searchUsers", query],
+        queryFn: ({ pageParam }) => searchAPI.searchUsers(query, pageParam),
+        getNextPageParam: (lastPage) => lastPage.nextCursor,
+        enabled: enabled && !!query,
+        staleTime: 5 * 60 * 1000,
     });
 };
 
-export const useSearchTweets = () => {
-    return useMutation({
-        mutationFn: ({ query, cursor }) => searchAPI.searchTweets(query, cursor),
+export const useSearchTweets = ({ query, enabled = true }) => {
+    return useInfiniteQuery({
+        queryKey: ["searchTweets", query],
+        queryFn: ({ pageParam }) => searchAPI.searchTweets(query, pageParam),
+        getNextPageParam: (lastPage) => lastPage.nextCursor,
+        enabled: enabled && !!query,
+        staleTime: 5 * 60 * 1000,
     });
 };
 

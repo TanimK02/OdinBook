@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { FaRegComment, FaRegHeart, FaHeart, FaTrash } from 'react-icons/fa';
 import { formatDistanceToNow } from 'date-fns';
 import './TweetCard.css';
-import { useAuth } from '../AuthProvider.jsx';
-import { useToggleLike, useDeleteTweet } from '../hooks/useTweetMutations.js';
+import { useAuth } from '../../AuthProvider.jsx';
+import { useToggleLike, useDeleteTweet } from '../../hooks/useTweetMutations.js';
 import toast from 'react-hot-toast';
 import { PhotoProvider, PhotoView } from 'react-photo-view';
 function TweetCard({ tweet, isDetail = false, likedByCurrentUser = false }) {

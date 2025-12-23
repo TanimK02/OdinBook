@@ -1,0 +1,41 @@
+.tweetsList {
+    padding-bottom: 60px;
+    width: 100%;
+}
+
+.sectionHeader {
+    padding: 16px;
+    font-size: 20px;
+    font-weight: 800;
+    color: #e7e9ea;
+    border-bottom: 1px solid #2f3336;
+}
+
+.loadMore {
+    padding: 16px;
+    text-align: center;
+    color: #1d9bf0;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    border-top: 1px solid #2f3336;
+    border-bottom: 1px solid #2f3336;
+}
+
+.loadMore:hover {
+    background-color: rgba(29, 155, 240, 0.1);
+}
+
+.loading {
+    text-align: center;
+    padding: 20px;
+    color: #71767b;
+    font-size: 14px;
+}
+
+@media (max-width: 768px) {
+    .tweetsList {
+        padding-bottom: 80px;
+    }
+}

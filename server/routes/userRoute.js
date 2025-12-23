@@ -2,7 +2,7 @@ import { Router } from "express";
 import { requireAuth } from "../middleware/authentication.js";
 import { uploadMiddleware } from "../middleware/uploadController.js";
 import { loginValidation, passwordChangeValidation, registerValidation, updateEmailValidation, updateUsernameValidation } from "../middleware/validators.js";
-import { changePassword, deleteAccountController, getProfileController, login, postProfile, register, updateEmailController, updateUsernameController, userInfo, logout, getOtherUserInfoController } from "../controllers/userController.js";
+import { changePassword, deleteAccountController, getProfileController, login, postProfile, register, updateEmailController, updateUsernameController, userInfo, logout, getOtherUserInfoController, getRandomUsersController } from "../controllers/userController.js";
 const userRouter = Router();
 
 userRouter.get("/", (req, res) => {
@@ -18,6 +18,8 @@ userRouter.post("/logout", requireAuth, logout);
 userRouter.get("/userinfo", requireAuth, userInfo);
 
 userRouter.get("/user/:userId", requireAuth, getOtherUserInfoController);
+
+userRouter.get("/random", requireAuth, getRandomUsersController);
 
 userRouter.post("/profile", requireAuth, uploadMiddleware, postProfile);
 

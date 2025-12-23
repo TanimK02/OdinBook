@@ -1,0 +1,42 @@
+.searchTabs {
+    display: flex;
+    gap: 12px;
+    padding: 12px 16px;
+    border-bottom: 1px solid #2f3336;
+}
+
+.searchTabs button {
+    padding: 8px 16px;
+    background-color: transparent;
+    border: 1px solid #536471;
+    border-radius: 9999px;
+    color: #e7e9ea;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    outline: none;
+}
+
+.searchTabs button:hover {
+    background-color: rgba(29, 155, 240, 0.1);
+    border-color: #1d9bf0;
+}
+
+.searchTabs button:focus {
+    outline: none;
+}
+
+.searchTabs button.active,
+.active {
+    background-color: #1d9bf0;
+    border-color: #1d9bf0;
+    color: #fff;
+}
+
+.searchTabs button.active:hover,
+.active:hover {
+    background-color: #1a8cd8;
+    border-color: #1a8cd8;
+}

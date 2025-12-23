@@ -1,4 +1,4 @@
-import { comparePassword, createProfile, deleteAccount, getProfile, getOtherUserInfo, getUserWithPassword, getUserInfo, registerUser, updateEmail, updatePassword, updateProfile, updateUsername, uploadProfilePic } from "../services/userService.js";
+import { comparePassword, createProfile, deleteAccount, getProfile, getOtherUserInfo, getRandomUsers, getUserWithPassword, getUserInfo, registerUser, updateEmail, updatePassword, updateProfile, updateUsername, uploadProfilePic } from "../services/userService.js";
 import passport from "../config/passport.js";
 
 export const register = async (req, res) => {
@@ -186,6 +186,24 @@ export const getOtherUserInfoController = async (req, res) => {
         if (err.message == "User not found") {
             return res.status(404).json({ error: "User not found" });
         }
+        res.status(500).json({ error: "Internal server error" });
+    }
+}
+
+export const getRandomUsersController = async (req, res) => {
+    const { limit } = req.query;
+    const requestedLimit = limit ? parseInt(limit) : 5;
+
+    if (requestedLimit < 1 || requestedLimit > 20) {
+        return res.status(400).json({ error: "Limit must be between 1 and 20" });
+    }
+
+    try {
+        const users = await getRandomUsers(requestedLimit, req.user.id);
+        res.status(200).json({ users });
+
+    } catch (err) {
+        console.error(err);
         res.status(500).json({ error: "Internal server error" });
     }
 }  

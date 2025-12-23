@@ -228,3 +228,38 @@ export const getOtherUserInfo = async (userId) => {
         throw (err)
     }
 };
+
+export const getRandomUsers = async (limit = 5, excludeUserId = null) => {
+    try {
+        const totalUsers = await prisma.user.count({
+            where: excludeUserId ? { id: { not: excludeUserId } } : undefined
+        });
+
+        if (totalUsers === 0) {
+            return [];
+        }
+
+        const skip = Math.max(0, Math.floor(Math.random() * (totalUsers - limit)));
+
+        const users = await prisma.user.findMany({
+            where: excludeUserId ? { id: { not: excludeUserId } } : undefined,
+            select: {
+                id: true,
+                username: true,
+                profile: {
+                    select: {
+                        bio: true,
+                        avatarUrl: true
+                    }
+                }
+            },
+            skip: skip,
+            take: limit
+        });
+
+        return users;
+    } catch (err) {
+        console.error(err);
+        throw (err)
+    }
+};

@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { FaImage, FaTimes } from 'react-icons/fa';
 import './ComposeTweet.css';
-import { useCreateTweet } from '../hooks/useTweetMutations';
+import { useCreateTweet } from '../../hooks/useTweetMutations.js';
 import toast from 'react-hot-toast';
 import { PhotoProvider, PhotoView } from 'react-photo-view';
 

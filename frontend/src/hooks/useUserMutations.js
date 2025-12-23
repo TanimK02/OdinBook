@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { userAPI } from "../api.js";
 
 export const useLogin = () => {
@@ -80,5 +80,13 @@ export const useDeleteAccount = () => {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["user"] });
         },
+    });
+};
+
+export const useGetRandomUsers = (limit = 6) => {
+    return useQuery({
+        queryKey: ["randomUsers", limit],
+        queryFn: () => userAPI.getRandomUsers(limit),
+        staleTime: 5 * 60 * 1000, // 5 minutes
     });
 };  
