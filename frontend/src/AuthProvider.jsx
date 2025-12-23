@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, CSSProperties } from "react";
+import { createContext, useContext } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { userAPI } from "./api.js";
 import { ClockLoader } from "react-spinners";
