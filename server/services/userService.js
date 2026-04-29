@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
 import prisma from '../config/prisma.js'
-import { supabase } from "../config/supabase.js";
+import { supabase, supabaseBucket } from "../config/supabase.js";
 
 export const registerUser = async (email, password, username) => {
     const passwordHash = bcrypt.hashSync(password, 10);
@@ -94,7 +94,7 @@ export const uploadProfilePic = async (avatarFile, userId) => {
         const filePath = `avatars/${userId}_${Date.now()}_${avatarFile.originalname}`;
         const { error } = await supabase
             .storage
-            .from('tweet-images')
+            .from(supabaseBucket)
             .upload(filePath, avatarFile.buffer, {
                 cacheControl: '3600',
                 upsert: true,
@@ -107,7 +107,7 @@ export const uploadProfilePic = async (avatarFile, userId) => {
 
         const { data } = supabase
             .storage
-            .from('tweet-images')
+            .from(supabaseBucket)
             .getPublicUrl(filePath);
 
         if (!data?.publicUrl) {

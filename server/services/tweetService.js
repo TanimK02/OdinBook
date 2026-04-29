@@ -1,5 +1,5 @@
 import prisma from '../config/prisma.js';
-import { supabase } from "../config/supabase.js";
+import { supabase, supabaseBucket } from "../config/supabase.js";
 
 export const uploadTweetImages = async (tweetPics) => {
     try {
@@ -7,7 +7,7 @@ export const uploadTweetImages = async (tweetPics) => {
             const filePath = `tweets/${Date.now()}_${file.originalname}`;
             const { error } = await supabase
                 .storage
-                .from('tweet-images')
+                .from(supabaseBucket)
                 .upload(filePath, file.buffer, {
                     cacheControl: '3600',
                     upsert: false,
@@ -20,7 +20,7 @@ export const uploadTweetImages = async (tweetPics) => {
 
             const { data } = supabase
                 .storage
-                .from('tweet-images')
+                .from(supabaseBucket)
                 .getPublicUrl(filePath);
 
             if (!data?.publicUrl) {
