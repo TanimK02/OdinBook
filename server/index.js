@@ -23,7 +23,9 @@ app.use(cors({
     origin: (origin, callback) => {
         const allowedOrigins = [
             'http://localhost:5173',
-            'https://odin-book-pi.vercel.app'
+            'https://odin-book-pi.vercel.app',
+            'https://tclone.one',
+            'https://www.tclone.one'
         ];
         // Allow requests with no origin (like mobile apps or curl)
         if (!origin || allowedOrigins.includes(origin)) {
