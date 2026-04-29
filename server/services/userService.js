@@ -92,7 +92,7 @@ export const getUserInfo = async (id) => {
 export const uploadProfilePic = async (avatarFile, userId) => {
     try {
         const filePath = `avatars/${userId}_${Date.now()}_${avatarFile.originalname}`;
-        await supabase
+        const { error } = await supabase
             .storage
             .from('tweet-images')
             .upload(filePath, avatarFile.buffer, {
@@ -100,10 +100,19 @@ export const uploadProfilePic = async (avatarFile, userId) => {
                 upsert: true,
                 contentType: avatarFile.mimetype
             });
+
+        if (error) {
+            throw new Error(`Supabase avatar upload failed: ${error.message}`);
+        }
+
         const { data } = supabase
             .storage
             .from('tweet-images')
             .getPublicUrl(filePath);
+
+        if (!data?.publicUrl) {
+            throw new Error("Supabase did not return a public URL for avatar upload.");
+        }
         return data.publicUrl
     }
     catch (error) {

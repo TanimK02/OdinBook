@@ -6,20 +6,10 @@ import { faker } from '@faker-js/faker';
 export async function main() {
     console.log('Starting seed...');
 
-    // Clear existing data
-    console.log('Clearing existing data...');
-    await prisma.like.deleteMany();
-    await prisma.retweet.deleteMany();
-    await prisma.follow.deleteMany();
-    await prisma.tweet.deleteMany();
-    await prisma.profile.deleteMany();
-    await prisma.user.deleteMany();
-    console.log('Database cleared!');
-
     // Create users
     const users = [];
     const usernames = [
-        ... new Set(Array.from({ length: 50 }, () => faker.internet.userName()))
+        ... new Set(Array.from({ length: 50 }, () => faker.internet.username()))
     ];
 
     const bios = [

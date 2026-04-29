@@ -5,7 +5,7 @@ export const uploadTweetImages = async (tweetPics) => {
     try {
         const imageUrls = await Promise.all(tweetPics.map(async (file) => {
             const filePath = `tweets/${Date.now()}_${file.originalname}`;
-            await supabase
+            const { error } = await supabase
                 .storage
                 .from('tweet-images')
                 .upload(filePath, file.buffer, {
@@ -13,10 +13,19 @@ export const uploadTweetImages = async (tweetPics) => {
                     upsert: false,
                     contentType: file.mimetype
                 });
+
+            if (error) {
+                throw new Error(`Supabase tweet image upload failed: ${error.message}`);
+            }
+
             const { data } = supabase
                 .storage
                 .from('tweet-images')
                 .getPublicUrl(filePath);
+
+            if (!data?.publicUrl) {
+                throw new Error("Supabase did not return a public URL for tweet image upload.");
+            }
             return data.publicUrl;
         }));
         return imageUrls;
