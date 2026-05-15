@@ -15,7 +15,9 @@ Full-stack social feed app (compose tweets, replies, likes, retweets, profiles, 
 
 ## Browser compatibility
 
-Safari can block or partition third-party cookies more aggressively than Chromium-based browsers. This app uses a **session cookie** on the API origin. For local development, use **Chrome, Firefox, or Edge** with the Vite dev server and API on the documented localhost URLs. If you deploy the frontend and API on different sites, you will need HTTPS, `SameSite=None`, and correct CORS/cookie settings (see [server/index.js](server/index.js)).
+**Safari** behaves correctly when the SPA and API are on the **same domain** (one hostname, e.g. the API behind a reverse proxy on the same site as the static app). Session cookies then stay first-party and login works as expected.
+
+If the client and API use **different origins** (different hostnames, or typical split dev such as Vite on one port and Express on another), the session cookie is **cross-site**; Safari’s tracking prevention is stricter than Chromium here, so you need HTTPS, `SameSite=None`, `Secure`, and a correct CORS allowlist (see [server/index.js](server/index.js)). For that split setup, Chrome, Firefox, or Edge are usually simpler for day-to-day development.
 
 ## Tech stack
 
