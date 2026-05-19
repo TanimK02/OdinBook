@@ -57,7 +57,7 @@ app.use(session({
         secure: process.env.NODE_ENV === 'production',
         sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
         maxAge: 24 * 60 * 60 * 1000,
-        domain: process.env.NODE_ENV === 'production' ? undefined : 'localhost'
+        // Omit domain in test/dev so Supertest can persist session cookies on its agent
     }
 }));
 
